@@ -1,0 +1,128 @@
+/* 主题变量
+/* :root { */
+  /* --nav-tabs-bg: rgb(163, 236, 16); */
+  /* --primary: #ebc325; 激活选项卡的背景颜色 */
+  /* --secondary: #1884f1; 未选中选项卡的背景颜色 */
+  /* --content-bg: #555355; 选项内容的背景颜色 */
+  /* --border: #47c295; 未选择选项卡的边框颜色 */
+  /* --activate-border: #91c247; 选中选项卡的边框颜色 */
+  /* --text: #2d3748; 选项卡字体颜色 */
+  /* --active-text: red; 激活选项卡的字体颜色 */
+  /* --primary-shadow: green; 激活选项卡底部颜色 */
+  /* --shadow: rgba(0,0,0,0.3); */
+  /* --tab-button-hover: #4d8bdc; 悬停选项卡的颜色背景 */
+/* } */ 
+
+/* 主色调：低饱和橙黄 + 米白基底 */
+:root {
+  --nav-tabs-bg: #fff3e0;     /* 米白背景 */
+  --primary: #ffecb3;         /* 淡橙黄激活选项卡 */
+  --secondary: #f7f9ee;       /* 浅青灰辅助色 */
+  
+  /* 辅助色：冷灰与柔和蓝绿 */  
+  --content-bg: #ffffff;      /* 纯白内容区 */
+  --border: #e9f5dc;          /* 浅黄绿边框 */
+  --activate-border: #a8e9ed; /* 海沫绿选中边框 */
+  
+  /* 文字色：深绿与中性灰 */  
+  --text: #6c757d;            /* 中性灰蓝文字 */
+  --active-text: #2e647a;     /* 深森林绿选中） */
+  
+  /* 投影与反馈：极淡透明色 */  
+  --primary-shadow: rgba(255, 127, 80, 0.2); /* 半透明琥珀橙阴影 */
+  --shadow: rgba(0,0,0,0.2); /* 极淡投影 */
+  --tab-button-hover: #f6e4c6; /* 浅鲑鱼橙悬停反馈 */
+}
+
+/* 容器基础样式 */
+.tabs {
+  max-width: 96%;
+  margin: 10px auto;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 12px var(--shadow);
+}
+
+/* 导航栏布局优化 */
+.nav-tabs {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background: var(--nav-tabs-bg);
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 2px 6px var(--shadow);
+}
+
+/* 移除列表项默认间距 */
+.tabs > ul{
+  padding: 0;
+  margin: 0;
+}
+
+/* 使用间隙替代边框分隔 */
+.tabs > ul > li {
+  margin: 0;
+  padding: 0;
+}
+
+/* 按钮样式统一 */
+.tab {
+  flex-shrink: 0;
+  padding: 0 8px; /* 统一外边距 */
+}
+
+.tab > button {
+  position: relative;
+  padding: 8px 16px;
+  background: var(--secondary);
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text);
+  transition: all 0.3s ease;
+  border-radius: 12px 12px 0 0;
+  border-right: 2px solid var(--border);
+  border-left: 2px solid var(--border);
+  border-top: 2px solid var(--border);
+}
+
+
+/* 优化悬停效果 */
+.tab > button:hover {
+  background: var(--tab-button-hover);
+}
+
+/* 激活状态样式 */
+.tab.active > button  {
+  /* background: var(--content-bg); */
+  background: var(--primary);
+  /* color: , 字体颜色 */
+  color: var(--active-text); 
+  border-right: 2px solid var(--activate-border);
+  border-left: 2px solid var(--activate-border);
+  border-top: 2px solid var(--activate-border);
+  box-shadow: inset 0 -3px 0  var(--primary-shadow);
+}
+
+.tab > button.active:hover {
+  background-position: left bottom;
+}
+
+/* 内容显示控制 */
+.tab-pane {
+  display: none;
+}
+
+.tab-pane.active {
+  display: block;
+}
+
+/* 内容区域样式 */
+.tab-content {
+  padding: 10px;
+  background: var(--content-bg);
+  border-top: 1px solid var(--border);
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
