@@ -215,26 +215,32 @@ about:
 
 使用 `hexo` 自带的 `hexo d` 命令同步数据是将生成的**静态资源**进行同步，对于原手稿（`*.md`，自己博客配置）等内容则还是保存在本地，所以需要使用git来对原内容进行管理。除此之外如果新建一个分支来保存原内容，则有点冗余，这里借用 `git` 分支操作来区分管理。
 
-首先创建一个用于保存源文件的分支 `source`，然后更改该分支为默认分支（之后所有的源文件则是依靠 `git` 与该分支进行同步）
+首先创建一个用于保存源文件的分支 `source`，然后更改该分支为默认分支（之后所有的源文件则是依靠 `git` 与该分支进行同步）。在文件中添加 `.gitignore` 文件，并忽略掉一些无关的配置文件内容：
 
-
-
-
-
-https://blog.csdn.net/u011642663/article/details/70182774
-
-
-
-[c参考地址](https://blog.csdn.net/qq_39431829/article/details/88959366)
-
+```bash
+.DS_Store
+Thumbs.db
+db.json
+*.log
+node_modules/
+public/
+.deploy*/
+```
 
 
 # 域名配置
 
-自己购买一个域名，我这里选取
+可以通过 GitHub Pages 域名进行访问，但也可以自己在 [阿里云](https://dc.console.aliyun.com/#/overview)购买一个域名，然后进行配置，使其能够被解析到博客域名中，具体流程如下：
 
-[阿里云](https://dc.console.aliyun.com/#/overview)
+1. 在 [阿里云](https://dc.console.aliyun.com/#/overview) 注册一个账号，并实名认证后购买一个域名
+2. 打开域名控制台，进入 **域名解析** ,添加两类记录：
+    - 主机记录：@，记录类型：A， 记录值为 `GitHub Pages` 域名的 `IP` 地址
+    - 主机记录：www , 记录类型：CNAME ， 记录值为 `GitHub Pages` 域名
 
+  ![域名配置](/img/assets/hexo个性化扩展/image.png)
+
+3. 在路径 `/source` 目录下新建一个 `CNAME` 文件，里面填写域名即可
+4. `GitHub` 中打开对应的仓库，在 `Setting` 中找到 `Pages` ，添加 `Custom Domain` 为新买的域名，旁边一个 `Enforce HTTPS` 勾选，然后网站就是 `https` 协议了。
 
 
 
@@ -242,17 +248,6 @@ https://blog.csdn.net/u011642663/article/details/70182774
 # 网站优化
 
 
-
-# 原内容同步到GitHub上
-
-
-
-> 注意，采用 `hexo d` 方式部署的文件，只会同步 `hexo g` 生成的静态网页资源到该远程仓库中，而原始的`*.md文件`以及`source文件夹`等内容并不会同步到远程仓库中。
-
-
-
-> 在使用`hexo init`的时候就会包含一些项目文件，可以考虑使用vscode打开相关目录，然后进行编写，如果需要同步到github上需要将相关的缓存内容在`.gitignore`中进行配置
-> 当然也可以选择其他的编辑器进行编写，但是同样需要注意相关的`.gitignore`配置
 
 
 
