@@ -15,5 +15,5 @@ npm install hexo-deployer-git -save
 ```bash
 hexo d
 
-git push
+git push origin source
 ```
