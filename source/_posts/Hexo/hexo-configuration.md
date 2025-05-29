@@ -24,7 +24,7 @@ sticky:
 
 ## 代码高亮
 
-通过配置项中的`lib`来选择生成给的高亮库，可选的有 `highlightjs` 和 `prismjs`,我个人选择 `highlightjs`，并将style修改为`Night Owl` 风格, 在 `_config.fluid.yml` 配置文件中找到并修改内容：
+通过配置项中的`lib`来选择生成给的高亮库，可选的有 `highlightjs` 和 `prismjs`,我个人选择 `highlightjs`，并将 `style` 修改为`an-old-hope` 风格, 在 `_config.fluid.yml` 配置文件中找到并修改内容：
 
 ```yml
 lib: "highlightjs"
@@ -33,7 +33,7 @@ highlightjs:
   # 在链接中挑选 style 填入
   # Select a style in the link
   # See: https://highlightjs.org/demo/
-  style: "Night Owl"
+  style: "an-old-hope"
   style_dark: "dark"
   bg_color: true
 ```
@@ -42,7 +42,7 @@ highlightjs:
 
 ```css
 .highlight
-    background: #011627
+    background: #1C1D21
     border-radius: 5px
     box-shadow: 0 10px 30px 0 rgba(0, 0, 0, .4)
     padding-top: 30px
@@ -241,7 +241,6 @@ public/
 
 3. 在路径 `/source` 目录下新建一个 `CNAME` 文件，里面填写域名即可
 4. `GitHub` 中打开对应的仓库，在 `Setting` 中找到 `Pages` ，添加 `Custom Domain` 为新买的域名，旁边一个 `Enforce HTTPS` 勾选，然后网站就是 `https` 协议了。
-
 
 
 
