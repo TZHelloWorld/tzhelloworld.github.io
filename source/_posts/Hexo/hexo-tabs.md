@@ -1,6 +1,6 @@
 ---
 title: hexo个性化之选项卡功能添加
-excerpt: '在使用 hexo fluid 主题时候发现没有选项卡的功能，因此我基于其他主题源码，自己改了一个，特此记录一下'
+excerpt: '在使用 hexo fluid 主题时候发现没有切换选项卡的功能，因此我基于其他主题的源码，自己修改了一个，特此记录一下'
 index_img: /img/post/hexo.jpg
 category_bar: ["博客"]
 categories: 
