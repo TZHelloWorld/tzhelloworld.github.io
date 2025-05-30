@@ -3,10 +3,11 @@
 在一个新环境中需要编写博客，需要(使用ssh登录，需要配置下)：
 
 ```bash
-git clone git@github.com:TZHelloWorld/tzhelloworld.github.io.git
+git clone git@github.com:TZHelloWorld/tzhelloworld.github.io.git tzhelloworld
 cd tzhelloworld
 
-npm install hexo
+npm install hexo-cli -g
+npm install
 npm install hexo-deployer-git -save
 ```
 
