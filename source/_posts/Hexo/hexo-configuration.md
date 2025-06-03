@@ -246,7 +246,25 @@ public/
 
 # 网站优化
 
+## 搜索路径优化
 
+`Hexo` 博客默认的文章路径是 `域名/年/月/日/文章标题`，这样的多层目录搜索引擎爬虫爬起来非常费力，b并且平时查阅起来也很困难，因此需要优化文章的 `URL` 路径：打开`_config.yml`，找到 `permalink` 项，将 `:year/:month/:day/:title/` 修改为 `:name.html`，就可以用 `域名/文章标题` 访问了。
 
+> `:title` 和 `:name` 的区别是：前者访问时会保留相对于 `_post` 目录的路径，改成后者后就是纯粹的文章标题。
+> 
+此外，还可以将其中的 `pretty_url` 项中的两个 `true` 改为 `false` 用于处理 `URL` 的文章标题：两项分别是去除连接中的后缀 `index.html` 和 `.html` 的。
 
+## 添加百度/谷歌收录
 
+由于 `Github Pages` 禁止了百度爬虫，所以百度引擎搜索是无法爬取到文章的，因此需要配置一下：
+1. 进入 进入[百度搜索提交入口](https://ziyuan.baidu.com/linksubmit/url) 或 [Google搜索提交入口](https://search.google.com/search-console/welcome?hl=zh-CN&utm_source=wmx&utm_medium=deprecation-pane&utm_content=home)，这里选择使用google搜索引擎，因为百度引擎需要实名认证，有点麻烦。
+2. 输入网站后，需要验证对网站的所有权，这里选择使用 `HTML`标签验证的方式，打开`themes/fluid/layout/_partial/head.ejs` 文件，将验证标签放入 `<head></head>`中添加：
+  ```html
+  <head>
+    <meta name="google-site-verification" content ="******">
+  <head>
+  ```
+
+3. 重新 `hexo d` 后，等待数分钟，点击完成验证，就会出现成功提示。
+
+可参考: https://www.cnblogs.com/ywang-wnlo/p/Hexo-SEO.html
