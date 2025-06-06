@@ -254,17 +254,42 @@ public/
 > 
 此外，还可以将其中的 `pretty_url` 项中的两个 `true` 改为 `false` 用于处理 `URL` 的文章标题：两项分别是去除连接中的后缀 `index.html` 和 `.html` 的。
 
-## 添加百度/谷歌收录
+## 添加Bing/谷歌收录
 
-由于 `Github Pages` 禁止了百度爬虫，所以百度引擎搜索是无法爬取到文章的，因此需要配置一下：
-1. 进入 进入[百度搜索提交入口](https://ziyuan.baidu.com/linksubmit/url) 或 [Google搜索提交入口](https://search.google.com/search-console/welcome?hl=zh-CN&utm_source=wmx&utm_medium=deprecation-pane&utm_content=home)，这里选择使用google搜索引擎，因为百度引擎需要实名认证，有点麻烦。
-2. 输入网站后，需要验证对网站的所有权，这里选择使用 `HTML`标签验证的方式，打开`themes/fluid/layout/_partial/head.ejs` 文件，将验证标签放入 `<head></head>`中添加：
+如果想让其他搜索引擎抓取到自己网站的内容，可以等其搜索引擎自动抓取链接，并插入到其数据库中索引。但是这种方式比较缓慢（可能都爬不到自己搭建的网站），所以需要我们自己人为配置去告诉搜索引擎我们的网站地址是什么。
+
+>  `Github Pages` 禁止了百度爬虫，所以**百度引擎搜索**是无法爬取到文章内容的，并且如果要配置的话，需要实名认证，略显麻烦。所以这里只考虑 Bing和谷歌搜索引擎的配置。
+
+如果想要判断是否已经被搜索引擎给收录了，直接在相关搜索引擎框中搜索即可：
+
+```bash
+site:域名
+```
+
+配置的话也简单，主要是 **生成站点地图** + **提交站点地图**：
+
+1. 首先是生成**站点地图**：Hexo配置站点地图可以利用 `hexo-generator-sitemap` 插件:
+    ```bash
+    npm install hexo-generator-sitemap --save
+
+    # 如果是百度的话，需要使用
+    npm install hexo-generator-baidu-sitemap --save
+    ```
+
+    那么每次打包生成public目录下就会生成 `sitemap.xml`，百度的话会生成 `baidusitemap.xml`。部署之后可以通过 `域名/sitemap.xml` 进行查看。
+
+
+2. 然后就是**提交生成的站点地图**:分别针对[Google搜索提交入口](https://search.google.com/search-console/welcome?hl=zh-CN&utm_source=wmx&utm_medium=deprecation-pane&utm_content=home) 和 [Bing搜索提交入口](https://www.bing.com/webmasters?tid=9a0213e1-6760-4a69-9d63-db2cec5c229f)，填写域名相关信息，使用`HTML`标签方式进行验证，打开`themes/fluid/layout/_partial/head.ejs` 文件，将验证标签放入 `<head></head>`中添加：
   ```html
   <head>
+    <!-- google相关的验证信息 -->
     <meta name="google-site-verification" content ="******">
+
+    <!-- Bing相关的验证信息 -->
+    <meta name="msvalidate.01" content="****" />
+
   <head>
   ```
-
 3. 重新 `hexo d` 后，等待数分钟，点击完成验证，就会出现成功提示。
+4. 需要将生成的站点信息提交到相关的搜索引擎：打开[google站点信息提交](https://search.google.com/search-console/sitemaps)或者[Bing站点信息提交](https://www.bing.com/webmasters/sitemaps)，找到站点地图，将之前生成的 `域名/sitemap.xml` 添加即可。
 
-可参考: https://www.cnblogs.com/ywang-wnlo/p/Hexo-SEO.html
