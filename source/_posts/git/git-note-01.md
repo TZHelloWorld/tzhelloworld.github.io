@@ -13,9 +13,6 @@ updated:
 sticky:
 ---
 
-
-
-
 # git的基础概念
 
 ## 模式
@@ -85,6 +82,42 @@ Git**本地**有三个工作区域：
 - `.gitmodules`：记录子模块的信息
 - `.gitconfig`：记录仓库的配置信息
 
+### `.gitconfig` 文件
+
+在项目的中 `.gitconfig` 文件用于记录哪些文件不需要添加到`Git`版本管理中(`.gitignore`文件生效的前提是该文件不能是已经被添加到`Git`版本库中的文件)。其使用的匹配规则是`blob`模式匹配，具体可以参考:[Git - gitignore Documentation](https://git-scm.com/docs/gitignore/zh_HANS-CN)
+
+文件 `.gitignore` 的格式规范如下：
+- 所有空行或者以 `#` 开头的行都会被 `Git` 忽略。
+- 可以使用标准的 `glob` 模式匹配，它会递归地应用在整个工作区中。
+- 若规则以 `/` 结束，则会匹配项目中所有同名目录下的内容，但不匹配同名文件；
+- 若规则以 `/` 开始，则会从项目根目录开始匹配；
+- 若规则不包含 `/`，会对 `.gitignore` 同路径下的文件和目录进行屏蔽；
+- `*` 匹配除了 `/` 以外的任意字符串，`**` 匹配完整路径名；
+- `?` 匹配除了 `/` 以外的任意单个字符；
+- 要忽略指定模式以外的文件或目录，可以在模式前加上叹号（`!`）取反。
+- 不能识别中文，因为默认编码是 GBK。
+
+等等。这里显示一个常见的`.gitignore` 文件:
+
+```.gitignore
+# 所有以 .a 结尾的文件
+*.a
+
+# 但是追踪所有的 lib.a 即便上面忽略了 .a 文件
+!lib.a
+
+# 之忽略当前目录下的TODO 文件，不会忽略如 subdir/TODO 文件
+/TODO
+
+# 忽略任何目录下名为build的文件夹
+build/
+
+# 忽略 doc/notes.txt, 但是 对于 doc/subdir/notes.txt 不忽略
+doc/*.txt
+
+# 忽略 doc/ 目录及其所有子目录下的 .md 文件
+doc/**/*.md
+```
 
 
 # 使用 Git
@@ -149,95 +182,34 @@ See 'git help git' for an overview of the system.
 有啥不会直接查。
 
 
-# docker安装gitlab
+# 遇到问题记录
 
-查找`gitlab`镜像：
+## Ubuntu中设置Git提示英文
+
+在个人电脑`Ubuntu`系统中使用中文导致安装`git`显示也为中文了。但是只想对`git` 命令改为显示英文,可以借助环境变量`LANGUAGE`和 `Ubuntu`系统中的`alias`来实现,过程如下：
+
+尝试在命令前手动指定所有语言变量：如果输出变为英文，说明别名设置正确后即可生效。
+```bash
+LANG=en_US.UTF-8 LC_MESSAGES=en_US.UTF-8 LANGUAGE=en_US.UTF-8 git status
+```
+发现，对于语言而言只是`LANGUAGE`变量有用。即:
+```bash
+LANGUAGE=en_US.UTF-8 git status
+```
+所以，`Git`显示英语依赖 `LANGUAGE`变量，因此使用命令之前显式设置`LANGUAGE`变量。可以起一个别名，并且写入到配置文件（`~/.bashrc`）中：
+```bash
+alias git='LANGUAGE=en_US.UTF-8 git'
+```
+
+## git下载大文件内容超时
+
+需要配置（超时时间设置，大文件下载设置。参考：[关于 GitHub 上的大文件 - GitHub 文档](https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-large-files-on-github#file-size-limits)）：
+- `http.lowSpeedLimit` ：设置 `HTTP` 传输的最低速度限制（字节/秒），0 表示不限制最低速度，即 `Git` 不会因为速度过慢而中断连接。默认行为：如果未设置，`Git` 可能会在低速连接时终止 `HTTP` 传输。
+- `http.lowSpeedTime`：设置 `Git` 允许低速传输的最长时间（秒）。只有当 `http.lowSpeedLimit` 非零时，这个参数才会生效。默认行为：`Git` 默认可能会在 30 秒（或更短）内终止低速连接。
+- `http.postBuffer`：设置 `Git` 通过 `HTTP` 发送的最大数据缓冲区大小。默认值为1MB（1048576字节）；设置大值适用于推送大文件或大仓库的情况。
 
 ```bash
-# 查找Gitlab镜像
-docker search gitlab
-
-# 拉取Gitlab镜像
-docker pull gitlab/gitlab-ce:latest
+git config --global --add http.lowSpeedLimit 0
+git config --global --add http.lowSpeedTime 999
+git config --global --add http.postBuffer 52428800000
 ```
-
-
-根据镜像启动容器:
-```bash
-# 启动容器
-docker run \
- -itd  \
- -p 9980:80 \ # 将容器内80端口映射至宿主机9980端口，这是访问gitlab的端口
- -p 9922:22 \ #容器上22端口映射到宿主上的9922，访问ssh的
- # 将容器中的/etc/gitlab文件挂载到宿主中的/home/gitlab/etc上
- -v /home/gitlab/etc:/etc/gitlab  \  
- -v /home/gitlab/log:/var/log/gitlab \
- -v /home/gitlab/opt:/var/opt/gitlab \
- --restart always \
- --privileged=true \
- --name gitlab \
- gitlab/gitlab-ce
-```
-
-进入容器，修改配置文件：
-```bash
-#进容器内部
-docker exec -it gitlab /bin/bash
- 
-#修改gitlab.rb
-vi /etc/gitlab/gitlab.rb
- 
-#加入以下内容到文件中：
-
-#gitlab访问地址，可以写域名。如果端口不写的话默认为80端口
-external_url 'http://192.168.xxx.xxx'
-#ssh主机ip
-gitlab_rails['gitlab_ssh_host'] = '192.168.xxx.xxx'
-#ssh连接端口
-gitlab_rails['gitlab_shell_ssh_port'] = 9922
- 
-# 让配置生效
-gitlab-ctl reconfigure
-```
-
-由于在容器中`/etc/gitlab/gitlab.rb`文件的配置会映射到`gitlab.yml`这个文件，由于咱在`docker中运行`生成的`url`地址应该是`http://192.168.xxx.xxx:9980`; 所以，要修改容器内文件 `/opt/gitlab/embedded/service/gitlab-rails/config/gitlab.yml`内容：
-
-```yaml
-gitlab:
-  host: 192.168.xxx.xxx
-  port: 9980 # 这里改为9980
-  https: false
-```
-
-然后重启`gitlab`服务，退出容器:
-
-``` bash
-#重启gitlab 
-gitlab-ctl restart
-
-#退出容器 
-exit
-```
-
-
-注意，第一次登录需要修改root密码：
-
-```bash
-# 进入容器内部
-docker exec -it gitlab /bin/bash
- 
-# 进入控制台
-gitlab-rails console -e production
- 
-# 查询id为1的用户，id为1的用户是超级管理员
-
-user = User.where(id:1).first
-# 修改密码为tz123456
-user.password='tz123456'
-
-# 保存,返回值为true表示设置成功了
-user.save!
-# 退出
-exit
-```
-

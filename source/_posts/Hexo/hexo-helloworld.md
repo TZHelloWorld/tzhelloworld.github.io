@@ -71,7 +71,7 @@ git config --global user.email "xxxxx@google.com"
 
 ## 4. 配置GitHub SSH
 
-如果需要将本地代码同步到 `GitHub` 上，需要使用`Git`与远程仓库建立安全连接，那么后续 `push/pull` 仓库时就不需要重复输入密码了。在2021年8月13号之后，HTTPS的建立安全连接方式被github停止使用了,并且官方推荐使用SSH协议的方式登录GitHub。
+如果需要将本地代码同步到 `GitHub` 上，需要使用`Git`与远程仓库建立安全连接，那么后续 `push/pull` 仓库时就不需要重复输入密码了。在2021年8月13号之后，`HTTPS`的建立安全连接方式被`github`停止使用了,并且官方推荐使用`SSH`协议的方式登录`GitHub`。
 
 
 本地生成一个**私钥-公钥对**：
@@ -87,7 +87,7 @@ ssh-keygen -t rsa -b 4096  -C "xxx@qq.com"
 完成后，会在一个提示目录下找到公钥文件（默认是`~\.ssh\id_rsa.pub`）,在 `GitHub` 的设置中找到SSH，并将生成的公钥内容添加相关的Key中。配置完成后在本地通过命令检测是否配置成功：
 
 ```bash
-ssh -T git@github.com
+ssh -vT git@github.com
 # 运行结果出现类似如下即表示成功
 # Hi {github_username}! You've successfully authenticated, but GitHub does not provide shell access.
 ```

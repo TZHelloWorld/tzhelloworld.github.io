@@ -51,6 +51,18 @@ git config -e [--global]
 git config --list --show-origin
 ```
 
+对于配置内容而言，除了用户名（`name`）、邮件（`email`）外，还有其他需要配置的（超时时间设置，大文件下载设置。参考：[关于 GitHub 上的大文件 - GitHub 文档](https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-large-files-on-github#file-size-limits)）：
+- `http.lowSpeedLimit` ：设置 `HTTP` 传输的最低速度限制（字节/秒），0 表示不限制最低速度，即 `Git` 不会因为速度过慢而中断连接。默认行为：如果未设置，`Git` 可能会在低速连接时终止 `HTTP` 传输。
+- `http.lowSpeedTime`：设置 `Git` 允许低速传输的最长时间（秒）。只有当 `http.lowSpeedLimit` 非零时，这个参数才会生效。默认行为：`Git` 默认可能会在 30 秒（或更短）内终止低速连接。
+- `http.postBuffer`：设置 `Git` 通过 `HTTP` 发送的最大数据缓冲区大小。默认值为1MB（1048576字节）；设置大值适用于推送大文件或大仓库的情况。
+
+```bash
+git config --global --add http.lowSpeedLimit 0
+git config --global --add http.lowSpeedTime 999
+git config --global --add http.postBuffer 52428800000
+```
+
+
 ## 基本流程操作（add、commit）
 
 在初始化一个仓库之后，我们就可以创建文件并添加内容（此时的文件是`Untracked`状态），创建一个 `helloworld.txt` 文件，并添加内容，之后可以将其追踪并提交:
@@ -72,15 +84,51 @@ git add test?.txt  # ? 代表单个字符，不得为空，因此如 test1.txt �
 git add dir/  	   # 添加路径下的 dir 文件夹内全部文件， / 有没有皆可
 ```
 
-对于暂存的文件，后悔了，可以取消暂存：
+对于 `commit` 命令，有一些比较常用的：
 ```bash
-git reset <filename> # 对于该不带参数的命令，会清空暂存区
+# 提交暂存区到仓库区
+git commit -m [message]
 
-git restore --stage <filename>
+# 提交暂存区的指定文件到仓库区
+git commit [file1] [file2] ... -m [message]
+
+# 提交工作区自上次commit之后的变化，直接到仓库区
+git commit -a
+
+# 提交时显示所有diff信息
+git commit -v
+
+# 使用一次新的commit，替代上一次提交
+# 如果代码没有任何新变化，则用来改写上一次commit的提交信息
+git commit --amend -m [message]
+
+# 重做上一次commit，并包括指定文件的新变化
+git commit --amend [file1] [file2] ...
 ```
 
+## 撤销操作（reset）
 
-## 对比
+对于已经暂存的文件，如果后悔`add`了，可以取消暂存：
+
+```bash
+# 重置暂存区的指定文件，与上一次commit保持一致，但工作区不变
+git reset [file]
+
+# 重置暂存区与工作区，与上一次commit保持一致
+git reset --hard
+
+# 重置当前分支的HEAD为指定commit，同时重置暂存区和工作区，与指定commit一致
+git reset --hard [commit]
+```
+
+其实需要比较下三种重置区别：
+- `git reset --soft`： 保留 **工作区** 和 **暂存区** 的内容
+- `git reset --hard`： 对于 **工作区** 和 **暂存区** 的内容都不保留
+- `git reset --mixed`：保留 **工作区** 内容，但是不保留 **暂存区** 的内容
+
+
+
+## 对比（diff）
 
 为了随时查看此时文件的状态，可以通过一些命令进行对比
 
@@ -259,10 +307,55 @@ git rebase master DEV
 
 > 其实，这里也需要考虑rebase之后的文件冲突问题。
 
+## 删除分支
+```bash
+# 删除分支
+git branch -d [branch-name]
+
+# 删除远程分支
+git push origin --delete [branch-name] # 在推送完成后，删除
+git branch -dr [remote/branch] # 直接删除
+```
 
 ## 分叉（Branch Diverged）
 
 分叉主要是当某个 `DEV` 分支开发到一半，因为特殊情况，需要废弃掉整个 `DEV` 分支，那么整个 `DEV` 分支的提交记录就是 **分叉**。产生分叉的原因有很多。
+
+
+# git stash
+
+当我们在一个分支上开发时候，需要切换到其他分支去测试，但是又不想提交当前的内容到本地仓库中，那么就可以使用`git stash`。 `stash`，直译为**储藏**，默认会将未提交的修改（Git追踪暂存和非暂存的）都保存起来。那么这时候就可以切换其他分支去操作了。
+
+使用语法如下：
+1. 记录一个stash版本:
+  ```bash
+  git stash
+
+  # 保存的时候添加一个message方便记录版本
+  git stash save "message"
+  ```
+2. 重新使用：
+  ```bash
+  git stash pop　# 弹出stash，会将最上面的stash删除
+
+  git stash apply  # 只是使用stash，不会将存储的进项删除
+  ```
+3. 查看现有的 `stash`:
+  ```bash
+  git stash list
+  ```
+4. 移除`stash`:
+  ```bash
+  git stash drop stash@{0}
+  ``` 
+
+需要注意的是：
+- `stash`是本地的，不会通过`git push`命令上传到远程服务器上
+- 默认情况下，`git stash`只会缓存`Git`暂存(`staged`)和`Git`追踪未暂存(`unstaged`)的内容。对于 `untracked` 内容和 `ignored` 内容则是不会缓存
+
+
+
+
 
 
 
