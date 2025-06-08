@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://tzhelloworld.top/git-note-02.html</loc>
-    <lastmod>2025-06-06</lastmod>
+    <loc>https://tzhelloworld.top/git-note-01.html</loc>
+    <lastmod>2025-06-08</lastmod>
   </url>
   <url>
-    <loc>https://tzhelloworld.top/git-note-01.html</loc>
-    <lastmod>2025-06-05</lastmod>
+    <loc>https://tzhelloworld.top/git-note-02.html</loc>
+    <lastmod>2025-06-08</lastmod>
+  </url>
+  <url>
+    <loc>https://tzhelloworld.top/git-note-03.html</loc>
+    <lastmod>2025-06-08</lastmod>
+  </url>
+  <url>
+    <loc>https://tzhelloworld.top/hexo-helloworld.html</loc>
+    <lastmod>2025-06-07</lastmod>
   </url>
   <url>
     <loc>https://tzhelloworld.top/hexo-configuration.html</loc>
@@ -19,9 +27,5 @@
   <url>
     <loc>https://tzhelloworld.top/hexo-contents.html</loc>
     <lastmod>2025-05-29</lastmod>
-  </url>
-  <url>
-    <loc>https://tzhelloworld.top/hexo-helloworld.html</loc>
-    <lastmod>2025-05-27</lastmod>
   </url>
 </urlset> 

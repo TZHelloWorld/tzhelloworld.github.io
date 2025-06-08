@@ -29,7 +29,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://tzhelloworld.top/img/post/git.png">
 <meta property="article:published_time" content="2025-06-05T15:42:35.000Z">
-<meta property="article:modified_time" content="2025-06-06T17:12:35.061Z">
+<meta property="article:modified_time" content="2025-06-08T08:13:21.439Z">
 <meta property="article:author" content="Tang Zhen">
 <meta property="article:tag" content="Git">
 <meta name="twitter:card" content="summary_large_image">
@@ -244,7 +244,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.8k 字
+          3.6k 字
         
       </span>
     
@@ -255,7 +255,7 @@
         
         
         
-          24 分钟
+          30 分钟
         
       </span>
     
@@ -305,7 +305,7 @@
         aria-expanded="true"
       >
         Git
-        <span class="list-group-count">(2)</span>
+        <span class="list-group-count">(3)</span>
         <i class="iconfont icon-arrowright"></i>
       </a>
       
@@ -332,6 +332,15 @@
            class="list-group-item list-group-item-action
            active">
           <span class="category-post">本地仓库的使用</span>
+        </a>
+      
+    
+      
+      
+        <a href="/git-note-03.html" title="git远程仓库"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">git远程仓库</span>
         </a>
       
     
@@ -376,17 +385,34 @@
 <p>除此之外，个人感觉使用比较多的命令有：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 显示当前的Git配置</span><br>git config --list<br><br><span class="hljs-comment"># 编辑Git配置文件</span><br>git config -e [--global]<br><br><span class="hljs-comment"># 查看所有的配置以及它们所在的文件</span><br>git config --list --show-origin<br></code></pre></td></tr></table></figure>
 
+<p>对于配置内容而言，除了用户名（<code>name</code>）、邮件（<code>email</code>）外，还有其他需要配置的（超时时间设置，大文件下载设置。参考：<a target="_blank" rel="noopener" href="https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-large-files-on-github#file-size-limits">关于 GitHub 上的大文件 - GitHub 文档</a>）：</p>
+<ul>
+<li><code>http.lowSpeedLimit</code> ：设置 <code>HTTP</code> 传输的最低速度限制（字节&#x2F;秒），0 表示不限制最低速度，即 <code>Git</code> 不会因为速度过慢而中断连接。默认行为：如果未设置，<code>Git</code> 可能会在低速连接时终止 <code>HTTP</code> 传输。</li>
+<li><code>http.lowSpeedTime</code>：设置 <code>Git</code> 允许低速传输的最长时间（秒）。只有当 <code>http.lowSpeedLimit</code> 非零时，这个参数才会生效。默认行为：<code>Git</code> 默认可能会在 30 秒（或更短）内终止低速连接。</li>
+<li><code>http.postBuffer</code>：设置 <code>Git</code> 通过 <code>HTTP</code> 发送的最大数据缓冲区大小。默认值为1MB（1048576字节）；设置大值适用于推送大文件或大仓库的情况。</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">git config --global --add http.lowSpeedLimit 0<br>git config --global --add http.lowSpeedTime 999<br>git config --global --add http.postBuffer 52428800000<br></code></pre></td></tr></table></figure>
+
+
 <h2 id="基本流程操作（add、commit）"><a href="#基本流程操作（add、commit）" class="headerlink" title="基本流程操作（add、commit）"></a>基本流程操作（add、commit）</h2><p>在初始化一个仓库之后，我们就可以创建文件并添加内容（此时的文件是<code>Untracked</code>状态），创建一个 <code>helloworld.txt</code> 文件，并添加内容，之后可以将其追踪并提交:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">git add helloworld.txt      <span class="hljs-comment"># 如果有多个文件，可以追加到后面，之后该文件变成 Staged 暂存状态</span><br>git commit -m <span class="hljs-string">&quot;first commit&quot;</span>  <span class="hljs-comment"># -m 表示message，备注本次提交信息，此时文件变成了 Unmodified 状态</span><br><br><span class="hljs-comment"># 上述两个语句可以合并成一个</span><br>git commit -am <span class="hljs-string">&quot;first commit&quot;</span><br></code></pre></td></tr></table></figure>
 
 <p>上述 <code>add</code> 命令后加的是文件名，除此之外，可以是 <strong>目录、通配符</strong> 等等：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">git add .          <span class="hljs-comment"># 相对路径中 . 表示当前目录，表示当前目录下所有文件</span><br>git add *.txt  	   <span class="hljs-comment"># * 代表任意字符串，所有 .cpp后缀的文件被添加</span><br>git add <span class="hljs-built_in">test</span>?.txt  <span class="hljs-comment"># ? 代表单个字符，不得为空，因此如 test1.txt 将被添加，而 test.txt 则不会</span><br>git add <span class="hljs-built_in">dir</span>/  	   <span class="hljs-comment"># 添加路径下的 dir 文件夹内全部文件， / 有没有皆可</span><br></code></pre></td></tr></table></figure>
 
-<p>对于暂存的文件，后悔了，可以取消暂存：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">git reset &lt;filename&gt; <span class="hljs-comment"># 对于该不带参数的命令，会清空暂存区</span><br><br>git restore --stage &lt;filename&gt;<br></code></pre></td></tr></table></figure>
+<p>对于 <code>commit</code> 命令，有一些比较常用的：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 提交暂存区到仓库区</span><br>git commit -m [message]<br><br><span class="hljs-comment"># 提交暂存区的指定文件到仓库区</span><br>git commit [file1] [file2] ... -m [message]<br><br><span class="hljs-comment"># 提交工作区自上次commit之后的变化，直接到仓库区</span><br>git commit -a<br><br><span class="hljs-comment"># 提交时显示所有diff信息</span><br>git commit -v<br><br><span class="hljs-comment"># 使用一次新的commit，替代上一次提交</span><br><span class="hljs-comment"># 如果代码没有任何新变化，则用来改写上一次commit的提交信息</span><br>git commit --amend -m [message]<br><br><span class="hljs-comment"># 重做上一次commit，并包括指定文件的新变化</span><br>git commit --amend [file1] [file2] ...<br></code></pre></td></tr></table></figure>
 
+<h2 id="撤销操作（reset）"><a href="#撤销操作（reset）" class="headerlink" title="撤销操作（reset）"></a>撤销操作（reset）</h2><p>对于已经暂存的文件，如果后悔<code>add</code>了，可以取消暂存：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 重置暂存区的指定文件，与上一次commit保持一致，但工作区不变</span><br>git reset [file]<br><br><span class="hljs-comment"># 重置暂存区与工作区，与上一次commit保持一致</span><br>git reset --hard<br><br><span class="hljs-comment"># 重置当前分支的HEAD为指定commit，同时重置暂存区和工作区，与指定commit一致</span><br>git reset --hard [commit]<br></code></pre></td></tr></table></figure>
 
-<h2 id="对比"><a href="#对比" class="headerlink" title="对比"></a>对比</h2><p>为了随时查看此时文件的状态，可以通过一些命令进行对比</p>
+<p>其实需要比较下三种重置区别：</p>
+<ul>
+<li><code>git reset --soft</code>： 保留 <strong>工作区</strong> 和 <strong>暂存区</strong> 的内容</li>
+<li><code>git reset --hard</code>： 对于 <strong>工作区</strong> 和 <strong>暂存区</strong> 的内容都不保留</li>
+<li><code>git reset --mixed</code>：保留 <strong>工作区</strong> 内容，但是不保留 <strong>暂存区</strong> 的内容</li>
+</ul>
+<h2 id="对比（diff）"><a href="#对比（diff）" class="headerlink" title="对比（diff）"></a>对比（diff）</h2><p>为了随时查看此时文件的状态，可以通过一些命令进行对比</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">git status         <span class="hljs-comment"># 查看工作区、暂存区的文件，一般前者是红色，后者是绿色</span><br>git diff           <span class="hljs-comment"># 查看工作区和暂存区的差异，适用于暂存后又修改的内容</span><br>git diff --cached  <span class="hljs-comment"># 查看暂存区与 Git 仓库的差异，适用于提交前查看</span><br>git diff HEAD      <span class="hljs-comment"># 同时查看其他两个区和 Git 仓库的差异</span><br></code></pre></td></tr></table></figure>
 <p><img src="/img/assets/git-note-02/image.png" srcset="/img/loading.gif" lazyload alt="diff详解"></p>
 <p>一般，我们都是使用可视化工具去对比差异，否则太多了。</p>
@@ -465,7 +491,22 @@
 <blockquote>
 <p>其实，这里也需要考虑rebase之后的文件冲突问题。</p>
 </blockquote>
+<h2 id="删除分支"><a href="#删除分支" class="headerlink" title="删除分支"></a>删除分支</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 删除分支</span><br>git branch -d [branch-name]<br><br><span class="hljs-comment"># 删除远程分支</span><br>git push origin --delete [branch-name] <span class="hljs-comment"># 在推送完成后，删除</span><br>git branch -dr [remote/branch] <span class="hljs-comment"># 直接删除</span><br></code></pre></td></tr></table></figure>
+
 <h2 id="分叉（Branch-Diverged）"><a href="#分叉（Branch-Diverged）" class="headerlink" title="分叉（Branch Diverged）"></a>分叉（Branch Diverged）</h2><p>分叉主要是当某个 <code>DEV</code> 分支开发到一半，因为特殊情况，需要废弃掉整个 <code>DEV</code> 分支，那么整个 <code>DEV</code> 分支的提交记录就是 <strong>分叉</strong>。产生分叉的原因有很多。</p>
+<h1 id="git-stash"><a href="#git-stash" class="headerlink" title="git stash"></a>git stash</h1><p>当我们在一个分支上开发时候，需要切换到其他分支去测试，但是又不想提交当前的内容到本地仓库中，那么就可以使用<code>git stash</code>。 <code>stash</code>，直译为<strong>储藏</strong>，默认会将未提交的修改（Git追踪暂存和非暂存的）都保存起来。那么这时候就可以切换其他分支去操作了。</p>
+<p>使用语法如下：</p>
+<ol>
+<li>记录一个stash版本:  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">git stash<br><br><span class="hljs-comment"># 保存的时候添加一个message方便记录版本</span><br>git stash save <span class="hljs-string">&quot;message&quot;</span><br></code></pre></td></tr></table></figure></li>
+<li>重新使用：  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">git stash pop　<span class="hljs-comment"># 弹出stash，会将最上面的stash删除</span><br><br>git stash apply  <span class="hljs-comment"># 只是使用stash，不会将存储的进项删除</span><br></code></pre></td></tr></table></figure></li>
+<li>查看现有的 <code>stash</code>:  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">git stash list<br></code></pre></td></tr></table></figure></li>
+<li>移除<code>stash</code>:  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">git stash drop stash@&#123;0&#125;<br></code></pre></td></tr></table></figure></li>
+</ol>
+<p>需要注意的是：</p>
+<ul>
+<li><code>stash</code>是本地的，不会通过<code>git push</code>命令上传到远程服务器上</li>
+<li>默认情况下，<code>git stash</code>只会缓存<code>Git</code>暂存(<code>staged</code>)和<code>Git</code>追踪未暂存(<code>unstaged</code>)的内容。对于 <code>untracked</code> 内容和 <code>ignored</code> 内容则是不会缓存</li>
+</ul>
 
                 
               </div>
@@ -537,7 +578,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>更新于</div>
-          <div>2025年6月7日</div>
+          <div>2025年6月8日</div>
         </div>
       
       
@@ -579,6 +620,12 @@
                 <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/git-note-03.html" title="git远程仓库">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">git远程仓库</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">

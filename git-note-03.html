@@ -1,0 +1,962 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+  <meta name="google-site-verification" content="nQ8729AnKDZY2U4_QCMQ7BB6o7OyJpa75_Q_8k4Ljpw" />
+  <meta name="msvalidate.01" content="553A47BF1E6E17422F1C43839732ABA2" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tang Zhen">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="关于远程仓库的使用介绍">
+<meta property="og:type" content="article">
+<meta property="og:title" content="git远程仓库">
+<meta property="og:url" content="https://tzhelloworld.top/git-note-03.html">
+<meta property="og:site_name" content="TZ">
+<meta property="og:description" content="关于远程仓库的使用介绍">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tzhelloworld.top/img/post/git.png">
+<meta property="article:published_time" content="2025-06-07T15:13:44.000Z">
+<meta property="article:modified_time" content="2025-06-08T07:27:15.958Z">
+<meta property="article:author" content="Tang Zhen">
+<meta property="article:tag" content="Git">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tzhelloworld.top/img/post/git.png">
+  
+  
+  
+  <title>git远程仓库 - TZ</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mac.css">
+<link rel="stylesheet" href="/css/tabs.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"tzhelloworld.top","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"always","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":2},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"pGOGT810g08Vym77Q7dyHIMa-MdYXbMMI","app_key":"zrQsxe52zK87DkQmLq0LJL4D","server_url":"https://pgogt810.api.lncldglobal.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>TZ</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="git远程仓库"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-06-07 23:13" pubdate>
+          2025年6月7日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          22 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="Git"
+        id="heading-0bcc70105ad279503e31fe7b3f47b665" role="tab" data-toggle="collapse" href="#collapse-0bcc70105ad279503e31fe7b3f47b665"
+        aria-expanded="true"
+      >
+        Git
+        <span class="list-group-count">(3)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-0bcc70105ad279503e31fe7b3f47b665"
+           role="tabpanel" aria-labelledby="heading-0bcc70105ad279503e31fe7b3f47b665">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/git-note-01.html" title="git基础知识"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">git基础知识</span>
+        </a>
+      
+    
+      
+      
+        <a href="/git-note-02.html" title="本地仓库的使用"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">本地仓库的使用</span>
+        </a>
+      
+    
+      
+      
+        <a href="/git-note-03.html" title="git远程仓库"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">git远程仓库</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">git远程仓库</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="远程的Git仓库"><a href="#远程的Git仓库" class="headerlink" title="远程的Git仓库"></a>远程的<code>Git</code>仓库</h1><p>虽然 <code>Git</code> 本身是一个分布式的，但通常我们需要使用一个远程服务器用于传递和同步不同用户之间的代码状态，因此就有了 <code>Git</code> 远程仓库的服务器：</p>
+<ul>
+<li><code>GitHub</code>：以及基于<code>Git</code>的代码托管平台，官网：<a target="_blank" rel="noopener" href="https://github.com/">GitHub</a></li>
+<li><code>GitLab</code>:一般用于内部搭建的。</li>
+<li><code>Gitee</code>: 国内基于<code>Git</code>的代码托管平台，官网：<a target="_blank" rel="noopener" href="https://gitee.com/">Gitee - 基于 Git 的代码托管和研发协作平台</a></li>
+</ul>
+<blockquote>
+<p>注意：服务器上的代码内容未必是最新的，并且不同用户之间如果不同步的话，代码状态也未必是一致的</p>
+</blockquote>
+<h2 id="鉴权"><a href="#鉴权" class="headerlink" title="鉴权"></a>鉴权</h2><p>为了能够在本地使用 <code>GitHub</code> 远程仓库(其他远程仓库同理)，需要对本地用户进行鉴权（告诉本地<code>Git</code>自己能够访问远程仓库地址），目前常用的鉴权方式有：</p>
+<ul>
+<li><strong>用户名+密码</strong>：一般是 <code>GitHub</code> 关联 <code>HTTPS</code>协议时候使用（但是注意：2021年8月13号之后，<code>HTTPS</code>的提交方式被<code>GitHub</code>停止使用了）</li>
+<li><strong><code>SSH</code>密钥对</strong>: <code>GitHub</code>官方推荐, 在本地生成<code>SSH</code>密钥,并且需要在<code>GitHub</code>上添加公钥的配置。可参考：<a target="_blank" rel="noopener" href="https://docs.github.com/zh/authentication/connecting-to-github-with-ssh/about-ssh">关于 SSH - GitHub 文档</a></li>
+</ul>
+<p>这里使用<code>SSH</code>协议来绑定远程仓库:</p>
+<ol>
+<li><p>本地生成一个<strong>私钥-公钥对</strong>：</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">ssh-keygen -t rsa -b 4096  -C <span class="hljs-string">&quot;xxx@qq.com&quot;</span><br></code></pre></td></tr></table></figure>
+<p>  参数详解：</p>
+<ul>
+<li><code>-t</code> : 指定加密算法类型，这里指定使用 <code>RSA</code> 算法生成密钥</li>
+<li><code>-b</code> : 指定密钥的位数</li>
+<li><code>-C</code> : 添加注释(<code>--comment</code>)</li>
+</ul>
+<p> 该操作会生成一个密钥文件，默认是 <code>~/.ssh/id_rsa</code>, <code>~/.ssh/id_rsa.pub</code>（如果在之前配置了，然后依然指定默认文件，那么就会覆盖之前的<code>SSH</code>配置）。当然，本地可以指定使用其他名字的密钥文件，需要在 <code>~/.ssh/config</code> 文件中配置一下：<br> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs config">Host github.com<br>  HostName github.com<br>  Port 22<br>  PreferredAuthentications publickey<br>  IdentityFile ~/.sssh/指定的私钥名称<br></code></pre></td></tr></table></figure></p>
+</li>
+<li><p>配置公钥：在<strong>远程仓库</strong>中配置公钥(默认<code>~/.ssh/id_rsa.pub</code>里面的内容)。</p>
+</li>
+<li><p>验证配置是否成功：</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">ssh -vT git@github.com<br><span class="hljs-comment"># 运行结果出现类似如下即表示成功</span><br><span class="hljs-comment"># Hi &#123;github_username&#125;! You&#x27;ve successfully authenticated, but GitHub does not provide shell access.</span><br></code></pre></td></tr></table></figure>
+<p>  当然可能因为<code>DNS</code>污染等原因导致输出内容为：</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">debug1: Connecting to github.com [127.0.0.1] port 22.<br>ssh: connect to host github.com port 22: Connection refused<br></code></pre></td></tr></table></figure>
+<p>  原因就是将<code>github.com</code> 域名解析为了 <strong>本地回环地址(<code>127.0.0.1</code>)</strong> ，解决方案可参考：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/521340971">ssh: connect to host github.com port 22: Connection refused</a></p>
+</li>
+</ol>
+<h2 id="克隆远程仓库"><a href="#克隆远程仓库" class="headerlink" title="克隆远程仓库"></a>克隆远程仓库</h2><p>远程仓库一般是需要建立连接的，本地开发很少从0开始，所以都是直接 <code>clone</code> 远程仓库来建立连接（前提是远程仓库中已有一个仓库）。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 使用https协议</span><br>git <span class="hljs-built_in">clone</span> https://github.com/xxx/xxxx.git<br><br><span class="hljs-comment"># 使用ssh协议</span><br>git <span class="hljs-built_in">clone</span> git@github.com:xxx/xxxx.git<br></code></pre></td></tr></table></figure>
+<p>此外，由于远程仓库中代码提交有很长的提交历史以及大的二进制文件内容，所以在 <code>clone</code> 远程仓库的时候加上参数<code>--depth=1</code>来限制 <code>clone</code> 的版本深度：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 使用https协议</span><br>git <span class="hljs-built_in">clone</span> --depth=1 https://github.com/xxx/xxxx.git<br><br><span class="hljs-comment"># 使用ssh协议</span><br>git <span class="hljs-built_in">clone</span> --depth=1 git@github.com:xxx/xxxx.git<br></code></pre></td></tr></table></figure>
+
+
+<h2 id="远程仓库"><a href="#远程仓库" class="headerlink" title="远程仓库"></a>远程仓库</h2><p>本地 <code>Git</code> 默认链接的远程仓库名为<code>origin</code>。可以通过命令列出当前仓库中已配置的远程仓库，并显示它们的 <code>URL</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bas"># 查看远程仓库配置信息<br>git remote -v<br><br># 内容显示如下<br>origin  git@github.com:xxx/xxxx.git (fetch)<br>origin  git@github.com:xxx/xxxx.git (push)<br></code></pre></td></tr></table></figure>
+
+<p>除此之外，与远程仓库相关的命令还有：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 添加一个新的远程仓库</span><br>git remote add &lt;remote_name&gt; &lt;remote_url&gt;<br><br><span class="hljs-comment"># 将已配置的远程仓库重命名</span><br>git remote rename &lt;old_name&gt; &lt;new_name&gt;<br><br><span class="hljs-comment"># 从当前仓库中删除指定的远程仓库配置</span><br>git remote remove &lt;remote_name&gt;<br></code></pre></td></tr></table></figure>
+
+
+<h2 id="远程分支"><a href="#远程分支" class="headerlink" title="远程分支"></a>远程分支</h2><p>在本地仓库使用 <code>git log</code> 查看时会发现历史提交版本中，存在本地分支（如<code>HEAD</code>、<code>master</code>等）外，还会有类似<code>origin/</code>的分支名，这就是远程仓库分支命名规范。可以查看所有的分支有哪些：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">git branch --all  <span class="hljs-comment"># 参数 --all 代表所有分支，包括远程分支(会以 remotes/ 标识)；可缩写为 -a</span><br></code></pre></td></tr></table></figure>
+
+<p>可以用 <code>git switch</code> 切换到任意一个远程分支。（需要注意，切换为具有相同名字本地分支与远程分支的时候，默认会优先本地分支；所以此时，指定远程分支需要添加 <code>origin/</code>）</p>
+<div class="note note-warning">
+            <p>远程分支有一个特别的属性，在你切换远程分支时会自动进入一个 <strong>「分离 HEAD 状态」</strong>。在此状态下，不会有 <code>HEAD -&gt; origin/main -&gt; node</code>，而是直接有 <code>HEAD -&gt; node</code>。因为本地 <code>Git</code> 操作不能直接在远程分支上进行操作，需要使用同步操作。</p>
+          </div>
+
+<p>在实际操作时候，当在使用 <code>clone</code> 命令克隆一个远程仓库到本地的时候，<code>Git</code> 一般会自动创建一个 <strong>追踪</strong> <code>origin/main</code> 的 <code>main</code> 分支。</p>
+<h1 id="本地分支与远程分支的交互"><a href="#本地分支与远程分支的交互" class="headerlink" title="本地分支与远程分支的交互"></a>本地分支与远程分支的交互</h1><p>对于远程仓库和本地仓库，主要是将本地仓库与远程仓库进行同步，保证其他程序员用户能够共享代码并协作。所以，远程仓库的最大作用就是保留备份。但是，<strong>本地的分支是不会自动和远程仓库进行同步的</strong>，需要使用语句去执行，同步命令一般分两种:</p>
+<ul>
+<li>从远程仓库同步到本地仓库：<code>git clone</code>，<code>git fetch</code>，<code>git pull</code></li>
+<li>从本地仓库同步到远程仓库：<code>git push</code></li>
+</ul>
+<div class="note note-warning">
+            <p>在<code>git push</code>的时候，一般本地分支与远程分支（上游分支）有个<strong>默认的映射关联</strong>，如果不指定分支，则会使用默认的映射去同步。否则会提示报错<code>fatal: The current branch xxx has no upstream branch.</code>，翻译就是<strong>当前的分支没有设置任何上游分支</strong>。</p>
+          </div>
+
+
+<h2 id="远程分支与本地分支关联（upstream）"><a href="#远程分支与本地分支关联（upstream）" class="headerlink" title="远程分支与本地分支关联（upstream）"></a>远程分支与本地分支关联（<code>upstream</code>）</h2><p>在<code>Git</code>命令中有很多语句可以设置远程分支与本地分支的关联映射(主要是<code>upstream</code>相关)，这里主要介绍自己常用的。</p>
+<p><code>git</code>同步远程的思路基本是按照分支来进行的，也就是本地分支和远程分支进行同步的时候(<code>git push</code>)只会将当前分支修改的内容同步到远程仓库中，其他分支如果不执行语句则不会主动去同步。关联远程仓库的分支，可以通过：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 当前分支 关联 远程分支</span><br>git branch --set-upstream-to &lt;本地分支&gt; &lt;远程主机名&gt;/&lt;远程分支名&gt;<br><br><span class="hljs-comment"># 或者在创建新分支时候关联远程分支 </span><br><span class="hljs-comment"># 创建本地分支，然后关联远程分支</span><br>git checkout -b &lt;本地分支&gt; &lt;远程主机名&gt;/&lt;远程分支名&gt;<br><br><span class="hljs-comment"># 在推送的本地分支到远程仓库的时候，顺便关联远程分支, </span><br>git push --set-upstream &lt;远程主机名&gt; &lt;本地分支名&gt;:&lt;远程分支名&gt;<br><span class="hljs-comment"># 可以使用省略符 -u ，即：</span><br>git push -u &lt;远程主机名&gt; &lt;本地分支名&gt;:&lt;远程分支名&gt;<br></code></pre></td></tr></table></figure>
+
+<h2 id="FETCH-PULL"><a href="#FETCH-PULL" class="headerlink" title="FETCH &amp; PULL"></a>FETCH &amp; PULL</h2><p>具体内容介绍，可以通过命令 <code>git pull --help</code> 和 <code>git fetch --help</code> 查看,对于两个操作的区别在于：</p>
+<ul>
+<li><code>fetch</code>: 下载，只是下载远程分支内容到本地分支</li>
+<li><code>pull</code>: 拉取，拉取远程分支到本地分支，并且尝试将远程仓库中代码和本地分支代码进行合并</li>
+</ul>
+<p>常用的命令有：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 下载远程仓库的所有变动</span><br>git fetch [remote]<br><br><span class="hljs-comment"># 取回远程仓库的变化，并与本地分支合并</span><br>git pull [remote] [branch]<br></code></pre></td></tr></table></figure>
+
+
+<h2 id="PUSH"><a href="#PUSH" class="headerlink" title="PUSH"></a>PUSH</h2><blockquote>
+<p>具体内容介绍，可以通过命令 <code>git push --help</code> 查看</p>
+</blockquote>
+<p>使用语法：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">git push [--force] [--set-upstream] &lt;远程主机名&gt; &lt;本地分支名&gt;:&lt;远程分支名&gt;<br></code></pre></td></tr></table></figure>
+<ul>
+<li><code>--force</code>: <code>-f</code>, 强制推送，即使存在冲突也要覆盖远程分支</li>
+<li><code>--set-upstream</code>: <code>-u</code>, 推送的同时，关联相对应的远程分支</li>
+</ul>
+<p>如果本地分支名和远程分支名相同，可以省略冒号和远程分支名：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">git push &lt;远程主机名&gt; &lt;本地分支名&gt;<br></code></pre></td></tr></table></figure>
+<p>如果本地分支已经与远程分支建立了追踪关系，可以省略远程主机名和远程分支名。例如，如果本地分支 <code>master</code> 分支已经设置了追踪远程分支 <code>origin/master</code>，则可以简单地使用：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">git push<br></code></pre></td></tr></table></figure>
+
+<p>如果你想推送当前 <code>work</code> 分支到远程同名分支（如 <code>origin/work</code>），需要用：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 第一次需要建立本地分支与远程分支映射，第二次直接用git push即可</span><br>git push -u origin work<br></code></pre></td></tr></table></figure>
+
+<p>如果你想将 <code>work</code> 分支推送到远程的 <code>master</code> 分支，则需要明确指定本地分支：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 注意，可能会提示 warning 失败推送，直接 -f 强制推送即可</span><br>git push -u origin work:master<br></code></pre></td></tr></table></figure>
+<p>但不推荐这样做 ，因为直接推送本地分支到远程 <code>master</code> 可能覆盖他人工作。</p>
+<h1 id="docker安装gitlab"><a href="#docker安装gitlab" class="headerlink" title="docker安装gitlab"></a>docker安装gitlab</h1><p>查找<code>gitlab</code>镜像：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查找Gitlab镜像</span><br>docker search gitlab<br><br><span class="hljs-comment"># 拉取Gitlab镜像</span><br>docker pull gitlab/gitlab-ce:latest<br></code></pre></td></tr></table></figure>
+
+
+<p>根据镜像启动容器:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 启动容器</span><br>docker run \<br> -itd  \<br> -p 9980:80 \ <span class="hljs-comment"># 将容器内80端口映射至宿主机9980端口，这是访问gitlab的端口</span><br> -p 9922:22 \ <span class="hljs-comment">#容器上22端口映射到宿主上的9922，访问ssh的</span><br> <span class="hljs-comment"># 将容器中的/etc/gitlab文件挂载到宿主中的/home/gitlab/etc上</span><br> -v /home/gitlab/etc:/etc/gitlab  \  <br> -v /home/gitlab/log:/var/log/gitlab \<br> -v /home/gitlab/opt:/var/opt/gitlab \<br> --restart always \<br> --privileged=<span class="hljs-literal">true</span> \<br> --name gitlab \<br> gitlab/gitlab-ce<br></code></pre></td></tr></table></figure>
+
+<p>进入容器，修改配置文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#进容器内部</span><br>docker <span class="hljs-built_in">exec</span> -it gitlab /bin/bash<br> <br><span class="hljs-comment">#修改gitlab.rb</span><br>vi /etc/gitlab/gitlab.rb<br> <br><span class="hljs-comment">#加入以下内容到文件中：</span><br><br><span class="hljs-comment">#gitlab访问地址，可以写域名。如果端口不写的话默认为80端口</span><br>external_url <span class="hljs-string">&#x27;http://192.168.xxx.xxx&#x27;</span><br><span class="hljs-comment">#ssh主机ip</span><br>gitlab_rails[<span class="hljs-string">&#x27;gitlab_ssh_host&#x27;</span>] = <span class="hljs-string">&#x27;192.168.xxx.xxx&#x27;</span><br><span class="hljs-comment">#ssh连接端口</span><br>gitlab_rails[<span class="hljs-string">&#x27;gitlab_shell_ssh_port&#x27;</span>] = 9922<br> <br><span class="hljs-comment"># 让配置生效</span><br>gitlab-ctl reconfigure<br></code></pre></td></tr></table></figure>
+
+<p>由于在容器中<code>/etc/gitlab/gitlab.rb</code>文件的配置会映射到<code>gitlab.yml</code>这个文件，由于咱在<code>docker中运行</code>生成的<code>url</code>地址应该是<code>http://192.168.xxx.xxx:9980</code>; 所以，要修改容器内文件 <code>/opt/gitlab/embedded/service/gitlab-rails/config/gitlab.yml</code>内容：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">gitlab:</span><br>  <span class="hljs-attr">host:</span> <span class="hljs-number">192.168</span><span class="hljs-string">.xxx.xxx</span><br>  <span class="hljs-attr">port:</span> <span class="hljs-number">9980</span> <span class="hljs-comment"># 这里改为9980</span><br>  <span class="hljs-attr">https:</span> <span class="hljs-literal">false</span><br></code></pre></td></tr></table></figure>
+
+<p>然后重启<code>gitlab</code>服务，退出容器:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#重启gitlab </span><br>gitlab-ctl restart<br><br><span class="hljs-comment">#退出容器 </span><br><span class="hljs-built_in">exit</span><br></code></pre></td></tr></table></figure>
+
+
+<p>注意，第一次登录需要修改root密码：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 进入容器内部</span><br>docker <span class="hljs-built_in">exec</span> -it gitlab /bin/bash<br> <br><span class="hljs-comment"># 进入控制台</span><br>gitlab-rails console -e production<br> <br><span class="hljs-comment"># 查询id为1的用户，id为1的用户是超级管理员</span><br><br>user = User.<span class="hljs-built_in">where</span>(<span class="hljs-built_in">id</span>:1).first<br><span class="hljs-comment"># 修改密码为tz123456</span><br>user.password=<span class="hljs-string">&#x27;tz123456&#x27;</span><br><br><span class="hljs-comment"># 保存,返回值为true表示设置成功了</span><br>user.save!<br><span class="hljs-comment"># 退出</span><br><span class="hljs-built_in">exit</span><br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/" class="category-chain-item">技术栈</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/Git/" class="category-chain-item">Git</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Git/" class="print-no-link">#Git</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>git远程仓库</div>
+      <div>https://tzhelloworld.top/git-note-03.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tang Zhen</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年6月7日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2025年6月8日</div>
+        </div>
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="NC - 非商业性使用">
+                    <i class="iconfont icon-cc-nc"></i>
+                  </span>
+                </a>
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="SA - 相同方式共享">
+                    <i class="iconfont icon-cc-sa"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/git-note-02.html" title="本地仓库的使用">
+                        <span class="hidden-mobile">本地仓库的使用</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"pGOGT810g08Vym77Q7dyHIMa-MdYXbMMI","appKey":"zrQsxe52zK87DkQmLq0LJL4D","path":"window.location.pathname","placeholder":"o(≧∀≦)o  来啊，快活啊! （国内ip，无法评论~） ","avatar":"mp","meta":["nick","mail","link"],"requiredFields":[],"pageSize":20,"lang":"zh-CN","highlight":false,"recordIP":true,"serverURLs":"https://pgogt810.api.lncldglobal.com","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+  
+<script src="/js/tabs.js"></script>
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
