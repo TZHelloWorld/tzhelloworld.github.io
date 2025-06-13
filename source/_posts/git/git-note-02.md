@@ -370,3 +370,8 @@ git branch -dr [remote/branch] # 直接删除
 
 - `stash`是本地的，不会通过 `git push`命令上传到远程服务器上
 - 默认情况下，`git stash`只会缓存 `Git`暂存(`staged`)和 `Git`追踪未暂存(`unstaged`)的内容。对于 `untracked` 内容和 `ignored` 内容则是不会缓存
+
+
+{% note warning %}
+当在  `a` 分支使用git stash 保存工作空间内容，然后切换到 `b` 分支，此时  `git stash pop` 状态会尝试将存储中的内容添加到 `b` 分支之上，如果有冲突则提示需要手动 `merge` 。
+{% endnote %}
