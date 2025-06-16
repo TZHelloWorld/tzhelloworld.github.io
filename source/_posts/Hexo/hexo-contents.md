@@ -14,6 +14,7 @@ sticky:
 ---
 {% note success %}
 这个主要是用于一些 `markdown` 和 `html` 编写内容的参考（包括原生的和自定义扩展的）
+对于 `Markdown` 中使用 `HTML` 内容，可以参考网站：[技巧 | MARKDOWN 中文](https://markdown.cn/docs/tutorial-extras/hacks)
 {% endnote %}
 
 
