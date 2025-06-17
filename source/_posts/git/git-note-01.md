@@ -213,3 +213,23 @@ git config --global --add http.lowSpeedLimit 0
 git config --global --add http.lowSpeedTime 999
 git config --global --add http.postBuffer 52428800000
 ```
+## `git`在`ssh`鉴权时私钥文件权限太开放问题
+
+在`Linux`系统中通过拷贝`id_rsa`和`id_rsa.pub`两个文件来登录时候，可能会由于私钥文件权限太高而提示：
+```bash
+> ssh -vT git@git.n.xiaomi.com
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@         WARNING: UNPROTECTED PRIVATE KEY FILE!          @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Permissions 0644 for '/root/.ssh/id_rsa' are too open.
+It is required that your private key files are NOT accessible by others.
+This private key will be ignored.
+Load key "/root/.ssh/id_rsa": bad permissions
+```
+
+就是因为`/root/.ssh/id_rsa`的默认`SSH` 私钥文件的权限设置过于开放，存在安全隐患。`SSH`要求私钥文件必须仅对所有者可读写，其他用户不可访问。（如果使用非`root`账户，将`/root/.ssh`替换为`~/.ssh`）,解决方案就是将权限设置为`600`即可：
+
+```bash
+chmod 600 /root/.ssh/id_rsa
+```
