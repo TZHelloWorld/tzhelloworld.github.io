@@ -217,7 +217,7 @@ git config --global --add http.postBuffer 52428800000
 
 在`Linux`系统中通过拷贝`id_rsa`和`id_rsa.pub`两个文件来登录时候，可能会由于私钥文件权限太高而提示：
 ```bash
-> ssh -vT git@git.n.xiaomi.com
+> ssh -vT git@github.com
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 @         WARNING: UNPROTECTED PRIVATE KEY FILE!          @
