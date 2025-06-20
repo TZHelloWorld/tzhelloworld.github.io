@@ -292,4 +292,3 @@ site:域名
   ```
 3. 重新 `hexo d` 后，等待数分钟，点击完成验证，就会出现成功提示。
 4. 需要将生成的站点信息提交到相关的搜索引擎：打开[google站点信息提交](https://search.google.com/search-console/sitemaps)或者[Bing站点信息提交](https://www.bing.com/webmasters/sitemaps)，找到站点地图，将之前生成的 `域名/sitemap.xml` 添加即可。
-
