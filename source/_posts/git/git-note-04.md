@@ -37,12 +37,11 @@ _Merge or pull requests are created in a git management application and ask an a
 
 # Merge工作流
 
-这里将会从0开始，创建仓库以及使用`Merge`工作流进行工作
-
 ## 创建远程仓库，默认使用master分支
 
-在gitlab仓库中创建一个远程仓库，并且使用默认分支
+在 `gitlab` 仓库中创建一个远程仓库，并且使用默认分支 `master`:
 
+![创建远程仓库](/img/assets/git-note-04/image.png)
 
 ## 创建本地仓库，并关联远程仓库
 
@@ -100,15 +99,29 @@ git checkout -b dev
 git push -u origin dev
 ```
 
+通过提交一些记录，来模拟开发过程，这里的提交记录有：
+
+![提交记录](/img/assets/git-note-04/image-1.png)
+
+
 ## 开始MR
 
 **功能分支（`feature`）**开发完成后，通常需要合并到 `dev` 分支。虽然可以直接使用 `git merge` 或 `git rebase` 在本地完成合并，但这样会跳过 `Code Review`，不利于团队协作和代码质量管控。比如，对于分支使用 `git Merge` 本地合并的：
 ![本地merge逻辑，不推荐](/img/assets/git-note-04/mr.jpg)
 
-此时的**正确做法**应该是：仅提交 `feature` 分支的代码变更，无需在本地手动合并到 `dev`。而是通过远程仓库（如 `GitLab/GitHub`）的 `Merge Request（MR）`或 `Pull Request（PR）`功能 来**发起合并请求**。如：
+此时的**正确做法**应该是：仅提交 `feature` 分支的代码变更，无需在本地手动合并到 `dev`。而是通过远程仓库（如 `GitLab/GitHub`）的 `Merge Request（MR）`或 `Pull Request（PR）`功能 来**发起合并请求**。如新建一个`MR`:
 
+![New merge request](/img/assets/git-note-04/image-2.png)
+
+上述操作从源分支合并到目标分支中，相当于本地想做 `git merge <source branch> <target branch>` 操作，需要填写相关内容：
+
+![MR information](/img/assets/git-note-04/image-3.png)
 
 此时，可以继续`feature`分支代码的提交和变更，而 `feature` 分支最新代码的内容变更也会在 `MR` 中体现。
+
+![feature更新内容在MR中体现](/img/assets/git-note-04/image-4.png)
+
+然后就可以由审核人员查看信息。
 
 {% note warning %}
 如果 `Merge Request（MR）` 包含的代码量过大，会导致 `Review` 成本过高，团队成员可能不愿意或无法高效完成审查，从而很影响效率。解决思路有：
