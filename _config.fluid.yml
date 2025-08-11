@@ -375,6 +375,7 @@ navbar:
     - { key: "archive", link: "/archives/", icon: "iconfont icon-archive-fill" }
     - { key: "category", link: "/categories/", icon: "iconfont icon-category-fill" }
     - { key: "tag", link: "/tags/", icon: "iconfont icon-tags-fill" }
+    - { key: "sitemap", link: "/site-map/", icon: "iconfont icon-books"}
     - { key: "about", link: "/about/", icon: "iconfont icon-user-fill" }
     #- { key: "links", link: "/links/", icon: "iconfont icon-link-fill" }
 
@@ -971,6 +972,63 @@ tag:
     unit: px
     start_color: "#BBBBEE"
     end_color: "#337ab7"
+
+#---------------------------
+# 导航页
+# collections Page
+#---------------------------
+collections:
+  enable: true
+  title: "我的收藏"
+  subtitle: "我的导航页"
+  banner_img: /img/default_post_index_img.png
+  banner_img_height: 60
+  banner_mask_alpha: 0.3
+
+  # 标题层级，支持 2 ~ 6，默认 4（对应 h2 ~ h6）以优化SEO
+  heading_level: 2
+
+  # 分类列表
+  categories:
+    - name: "在线工具"
+      items:
+        - title: "LaTeX"
+          link: "https://www.latexlive.com/"
+          avatar: "https://cdn.worldvectorlogo.com/logos/latex.svg"
+          intro: "LaTeX公式编辑器"
+        - title: "OpenAI"
+          link: "https://chat.openai.com/chat"
+          avatar: "https://cdn.worldvectorlogo.com/logos/chatgpt-6.svg"
+          intro: "OpenAI"
+        - title: "drawio"
+          link: "https://www.drawio.com/"
+          avatar: "https://cdn.worldvectorlogo.com/logos/draw-io.svg"
+          intro: "drawio"
+        - title: "在线图标"
+          link: "https://worldvectorlogo.com/zh/ "
+          avatar: "https://cdn.worldvectorlogo.com/logos/w.svg"
+          intro: "在线图标"
+               
+    - name: "Docs"
+      items:
+        - title: "Triton"
+          link: "https://triton-lang.org/main/index.html"
+          avatar: "https://cdn.openai.com/triton/assets/triton-logo.png"
+          intro: "Triton is a language and compiler for parallel programming."
+
+        
+  # 自定义底部HTML内容，支持HTML标签
+  custom:
+    enable: true
+    content: |
+      <div style="text-align:center; margin-top: 4rem;">
+        欢迎来访我的收藏页面！如果你有好用的网站，欢迎推荐～
+      </div>
+
+  # 评论设置
+  comments:
+    enable: false
+    type: giscus
 
 
 #---------------------------

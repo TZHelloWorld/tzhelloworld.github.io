@@ -1,0 +1,49 @@
+<%
+page.layout = "collections"
+page.title = theme.collections.title || __('collections.title')
+page.subtitle = theme.collections.subtitle || __('collections.subtitle')
+page.banner_img = theme.collections.banner_img
+page.banner_img_height = theme.collections.banner_img_height
+page.banner_mask_alpha = theme.collections.banner_mask_alpha
+page.comment = theme.collections.comments.type
+
+// 标题层级，默认 h4
+const headingLevel = Math.min(6, Math.max(2, theme.collections.heading_level || 4))
+const headingTag = `h${headingLevel}`
+%>
+
+<div>
+  <% for(const category of theme.collections.categories || []) { %>
+    <<%= headingTag %> class="collection-category">
+      <%= category.name %>
+    </<%= headingTag %>>
+    
+    <div class="row links">
+      <% for(const item of category.items || []) { %>
+        <div class="card col-lg-4 col-md-6 col-sm-12">
+          <a href="<%= url_for(item.link) %>" class="card-body hover-with-bg" target="_blank" rel="noopener">
+            <div class="card-content">
+              <% if (item.avatar || item.image) { %>
+                <div class="link-avatar my-auto"> 
+                  <img src="<%= url_for(item.avatar || item.image) %>" alt="<%= item.title %>"
+                     onerror="this.onerror=null;this.src='<%= url_for(theme.collections.onerror_avatar) %>'" />
+                </div>
+              <% } %>
+              <div class="link-text">
+                <div class="link-text"><%= item.title %></div>
+                <div class="link-intro"><%= item.intro || '' %></div>
+              </div>
+            </div>
+          </a>
+        </div>
+      <% } %>
+    </div>
+  <% } %>
+</div>
+
+<% if(theme.collections.custom && theme.collections.custom.enable && theme.collections.custom.content) { %>
+  <div class="custom mx-auto">
+    <%- theme.collections.custom.content %>
+  </div>
+<% } %>
+
