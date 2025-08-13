@@ -1015,7 +1015,10 @@ collections:
           link: "https://triton-lang.org/main/index.html"
           avatar: "https://cdn.openai.com/triton/assets/triton-logo.png"
           intro: "Triton is a language and compiler for parallel programming."
-
+        - title: "CUDA Guide"
+          link: "https://docs.nvidia.cn/cuda/cuda-c-programming-guide/index.html"
+          avatar: "https://cdn.worldvectorlogo.com/logos/nvidia-7.svg"
+          intro: "CUDA C++ Programming Guide"
         
   # 自定义底部HTML内容，支持HTML标签
   custom:
