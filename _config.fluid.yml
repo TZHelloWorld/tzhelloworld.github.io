@@ -1019,6 +1019,10 @@ collections:
           link: "https://docs.nvidia.cn/cuda/cuda-c-programming-guide/index.html"
           avatar: "https://cdn.worldvectorlogo.com/logos/nvidia-7.svg"
           intro: "CUDA C++ Programming Guide"
+        - title : "NVSHMEM"
+          link: "https://docs.nvidia.com/nvshmem/api/using.html"
+          avatar: "https://cdn.worldvectorlogo.com/logos/nvidia-7.svg"
+          intro: "Communication of NVIDIA GPUs"
         
   # 自定义底部HTML内容，支持HTML标签
   custom:

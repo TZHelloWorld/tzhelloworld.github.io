@@ -18,3 +18,8 @@ hexo d
 
 git push origin source
 ```
+
+为了方便编写边看，可以通过命令实时编写blog：
+```bash
+hexo s --debug
+```
