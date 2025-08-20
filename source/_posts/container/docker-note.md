@@ -46,13 +46,28 @@ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 - `--name <container-name>`：设置容器名;
 - `--gpus all`:指定在容器中使用所有 `GPU`;
 - `--shm-size <shared-memory-size>` ：设置共享 `CPU` 内存大小;
-- `-v <host-path>:<container-path>`：目录挂载，将宿主主机上的容器挂载到容器中，可多次添加;
+- `-v <host-path>:<container-path>`：目录挂载，将宿主主机上的容器挂载到容器中，可多次添加;常用挂载路径有：
+  - `-v $HOME/.cache/modelscope/:/root/.cache/modelscope`：宿主主机`modelscope`默认缓存路径;
+  - `-v $HOME/.cache/huggingface/:/root/.cache/huggingface`：宿主主机`huggingface`默认缓存路径;
 - `--network host`：网络共享，使容器直接使用宿主机的网络;
 - `-e <cv-name>=<cv-value>` 环境变量：设置容器内环境变量 `<cv-name>` 的值为 `<cv-value>` ，可多次添加;
 - `--ipc=host`：进程间通信的命名空间共享，允许容器内的进程与宿主机上的进程进行通信，共享 `IPC` 命名空间;
 - `--rm`：容器关闭后自动删除;
+- `--privileged`：权限
 
-
+调试`sglang`容器:
+```bash
+docker run -itd \
+    --gpus all \
+    -v $HOME/.cache/modelscope/:/root/.cache/modelscope \
+    -v $HOME/.cache/huggingface/:/root/.cache/huggingface \
+    --ipc=host \
+    --network=host \
+    --privileged \
+    --name sglang_dev \
+    --entrypoint /bin/bash \
+    lmsysorg/sglang:dev
+```
 
 
 
@@ -72,19 +87,22 @@ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 5. `CMD ["command", "param1", "param2"]`：指定容器启动时默认执行的命令。还可写成 `CMD command param1 param2 (shell form)`。注意，一个 `Dockerfile` 里只能有一条 `CMD` 指令，如果有多条，只有最后一条生效。如果在 `docker run` 时指定了命令，那么 `CMD` 的命令会被覆盖；
 6. `ENV <key>=<value>`：设置容器运行时的环境变量，镜像构建时不生效；
 7. `ARG <key>=<value>`：设置镜像构建时的临时变量，容器运行时不生效；
-8. `ENTRYPOINT ["command", "param1", "param2"]`：定义容器启动时默认执行的主命令，可以在 `docker run --entrypoint /bin/bash`指定覆盖掉启动容器的默认主命令为`/bin/bash`;
+8. `ENTRYPOINT ["command", "param1", "param2"]`：定义容器启动时默认执行的主命令，可以在启动命令 `docker run --entrypoint /bin/bash` 指定**显式覆盖**掉启默认主命令为`/bin/bash`;
 
 
 ## 构建镜像（docker build）
 在命令行构建 `docker` 的指令：
 
 ```bash
-docker build -t <image-name>:<tag> -f <docker-file> <path>
+docker build --build-arg <arg-key>=<arg-value>  -t <image-name>:<tag> -f <docker-file> <path>
 ```
 说明：
+- `--build-arg <arg-key>=<arg-value>`：构建镜像时候传给`Dockerfile`中的参数，可设置多个：`--build-arg <arg-key1>=<arg-value1> --build-arg <arg-key2>=<arg-value>2 ...`
 - `-t <image-name>:<tag>`：镜像的名字和标签；
 - `-f <docker-file>`：`Dockerfile` 的路径；
 - `<path>`：指定 `Docker` 构建镜像时的构建上下文路径，即 `Docker` 可以访问的文件和目录的根路径。它决定了 `Dockerfile` 中文件引用（如 `COPY`、`ADD`）的查找范围。通常设为 `.` 表示当前目录，但也可以是其他本地目录或 `Git` 仓库 `URL`；
+- `--no-cache`：构建过程中不使用缓存;
+- `--progress=plain`：表示构建进度的输出模式，有`auto`, `plain`, `tty`;
 
 
 ## 镜像上传远程仓库
