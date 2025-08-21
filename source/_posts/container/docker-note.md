@@ -123,6 +123,7 @@ docker run --cap-add=SYS_ADMIN 。。。。
 
 调试`sglang`容器命令:
 ```bash
+# 启动容器
 docker run -itd \
     --gpus all \
     -v $HOME/.cache/modelscope/:/root/.cache/modelscope \
@@ -133,12 +134,23 @@ docker run -itd \
     --name sglang_dev \
     --entrypoint /bin/bash \
     lmsysorg/sglang:dev
+
+# [可选] 进入容器，卸载并通过pip install -e重新安装sglang来调试修改代码
+pip uninstall sglang
+
+pip install -e "python[all]" -i https://pkgs.d.xiaomi.net/artifactory/api/pypi/pypi-virtual/simple
+
+# 验证
+python3 -m sglang.launch_server --help
 ```
 
 ## 常用容器命令
 ```bash
 # 查看运行容器, -a表示所有容器（包含非运行状态）
 docker ps [-a]
+
+# 进入容器
+docker exec -it [container] bash
 
 # 启动、停止、重启、删除容器
 docker start/stop/restart/rm [container]
@@ -184,9 +196,28 @@ REPOSITORY    TAG       IMAGE ID       CREATED        SIZE
 ```
 
 这个其实会占用磁盘空间，删除全部虚悬镜像用特定的命令：
+
 ```bash
 docker image prune
 ```
+
+基于这个理论，也存在 `dangling container`、`dangling network`、`dangling volume`等等。可以通过命令删除这些占用的磁盘空间(**谨慎操作！！！**)
+
+```bash
+# --volumes  清理卷
+# --force, -f  删除时不需要确认
+docker system prune [--volumes] [-f]
+
+# 单独清理所有停止的容器，受或不受 Swarm 管理的停止容器都会被删除
+docker container prune
+
+# 单独清理所有未使用的网络
+docker network prune
+
+# 单独清理所有未使用的本地卷
+docker volume prune
+```
+
 
 # 构建镜像（`docker build` & `Dockerfile`）
 在日常开发中，一般需要自己构建 (`build`) 镜像(`image`)，自己构建镜像可以安装特定版本的CUDA、软件、脚本等等。而构建镜像的过程就是基于`Dockerfile`的。
@@ -208,17 +239,73 @@ docker image prune
 8. `ENTRYPOINT ["command", "param1", "param2"]`：定义容器启动时默认执行的主命令，可以在启动命令 `docker run --entrypoint /bin/bash` 指定**显式覆盖**掉启默认主命令为`/bin/bash`;
 
 ## 常见 Dockerfile 编写参考
+
+1. `ubuntu20.04`远程仓库软件对应的`python`默认是`3.8`版本，而新的开发程序需要`Python3.10+`版本或者其他版本。就可以参考：
+  ```Dockerfile
+  RUN apt-get update \
+    && apt-get install -y git curl wget python3.10 libpython3.10-dev python3-pip \
+    && apt-get install -y libgl1-mesa-glx libglib2.0-0 \
+    && ln -sf /usr/bin/python3.10  /usr/bin/python3 \
+    && ln -sf /usr/bin/python3.10  /usr/bin/python \
+    && apt-get autoclean && rm -rf /var/lib/apt/lists/*
+
+  # pip设置国内源
+  RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+  ```
+  或者源码编译编译安装：
+  ```Dockerfile
+  ADD https://www.python.org/ftp/python/3.10.14/Python-3.10.14.tgz /usr/local/Python-3.10.14.tgz
+
+  RUN tar -zxvf Python-3.10.14.tgz && cd Python-3.10.14 && apt-get update \
+      && apt-get install -y gcc g++ make libncurses5-dev libgdbm-dev liblzma-dev libz-dev libffi-dev libreadline-gplv2-dev tk-dev libc6-dev zlib1g-dev \
+      && apt-get install -y checkinstall libdb-dev libexpat1-dev libncursesw5-dev libreadline-dev libsqlite3-dev libssl-dev libtinfo-dev libbz2-dev build-essential \
+      && ./configure --prefix=/usr/local --enable-optimizations --with-ensurepip \
+      && make -j4 && make install && cd ../ && rm -rf Python-3.10.14* \
+      && apt-get autoclean && rm -rf /var/lib/apt/lists/*
+
+  # 需要单独安装pip软件包，注意在get-pip.py中有个地址指向国外源，可能会下载很慢
+  RUN curl https://bootstrap.pypa.io/get-pip.py --output get-pip.py \
+      && python3 get-pip.py && rm get-pip.py \
+      && ln -sf /usr/local/bin/pip3 /usr/bin/pip \
+      && apt-get autoclean && rm -rf /var/lib/apt/lists/*Dockerfile
+
+  # pip设置国内源
+  # 清华源
+  RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+  
+  # 阿里源 
+  RUN pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/ 
+  ```
+
+   {% note success %}
+    通过 `https://bootstrap.pypa.io/get-pip.py`获取的脚本的主要功能是创建一个临时目录，将存储旧版本的 `pip` 文件编码 `DATA`转换后保存到该临时目录中，以生成一个 `pip` 程序。通过 `bootstrap` 函数在该临时目录中执行 `pip install` 命令，从而升级并重新安装最新的 `pip` 及用户指定的其他包。主要执行逻辑介绍：
+    1. 首先，从 `sys` 模块获取当前 `Python` 版本，并与最低要求的版本进行比较。如果当前版本低于要求，则输出错误信息并终止程序。
+    2. 定义两个辅助函数 `include_setuptools` 和 `include_wheel` ，用于判断是否需要安装 `setuptools` 和 `wheel` 包。
+    3. 通过 `determine_pip_install_arguments` 函数构建一个 `argparse` 对象来处理用户的命令行选项，**这里可以通过添加国内源 `args.extend(["--index-url","https://pypi.tuna.tsinghua.edu.cn/simple"])`来加速这一个下载过程**。
+   {% endnote %}
+
+1. 
+
+
+
+其他//todo
+
 ```dockerfile
 FROM 
+
+
 
 
 ```
 
 
 
+
+
+
 ## 构建镜像（docker build）
 
-在命令行构建指令 `docker build` 使用可以通过`docker build --help 查看`，这里列举最常用的：
+在命令行构建指令 `docker build` 使用可以通过`docker build --help` 查看，这里列举最常用的：
 
 ```bash
 docker build --build-arg <arg-key>=<arg-value>  -t <image-name>:<tag> -f <docker-file> <path>
@@ -229,7 +316,7 @@ docker build --build-arg <arg-key>=<arg-value>  -t <image-name>:<tag> -f <docker
 - `-f <docker-file>`：`Dockerfile` 的路径；
 - `<path>`：指定 `Docker` 构建镜像时的构建上下文路径，即 `Docker` 可以访问的文件和目录的根路径。它决定了 `Dockerfile` 中文件引用（如 `COPY`、`ADD`）的查找范围。通常设为 `.` 表示当前目录，但也可以是其他本地目录或 `Git` 仓库 `URL`；
 - `--no-cache`：构建过程中不使用缓存;
-- `--progress=plain`：表示构建进度的输出模式，有`auto`, `plain`, `tty`;
+- `--progress=plain`：表示构建进度的输出模式（有的版本没这个参数），有`auto`, `plain`, `tty`;
 
 ## 构建调试
 
@@ -293,16 +380,3 @@ docker save [image] -o FILE
 # 将磁盘文件导入镜像
 docker load -i FILE
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
