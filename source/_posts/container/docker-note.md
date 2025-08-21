@@ -29,8 +29,21 @@ Got permission denied while trying to connect to the Docker daemon socket at uni
 解决方案：参考[https://docs.docker.com/engine/install/linux-postinstall/](https://docs.docker.com/engine/install/linux-postinstall/) ，通过创建一个 `docker` 用户组，并将普通用户加入到 `docker` 用户组即可使用。
 
 # 下载docker镜像
- 
 
+下载镜像命令：
+
+```bash
+# 如果不指定 <image-tag>，则默认使用 latest
+docker pull <image-name>:<image-tag>
+```
+
+为了能够在容器中使用`GPU`设备，`Nvidia`官方提供了一些常用镜像：
+- [nvidia/cuda:xx.x.x-base-ubuntu xx.xx](https://hub.docker.com/r/nvidia/cuda/tags?page_size=&ordering=&name=base-ubuntu)：包含了部署预构建`CUDA`应用程序的最低限度(`libcudart`)配置。
+- [nvidia/cuda:xx.x.x-runtime-ubuntu xx.xx](https://hub.docker.com/r/nvidia/cuda/tags?page_size=&ordering=&name=runtime-ubuntu)：基于 `base-ubuntu` 添加了 `CUDA` 工具包中的所有共享库扩展包。
+- [nvidia/cuda:xx.x.x-devel-ubuntu xx.xx](https://hub.docker.com/r/nvidia/cuda/tags?page_size=&ordering=&name=devel-ubuntu)：基于 `runtime-ubuntu` 添加编译器工具链、调试工具、头文件和静态库的扩展，最直观的感受就是能够使用 `nvcc` 命令了。
+- [lmsysorg/sglang:xxx](https://hub.docker.com/r/lmsysorg/sglang/tags)：`sglang` 框架的官方镜像，最常用的版本是 开发版(`dev`)、最新版(`latest`)。
+- [vllm/vllm-openai:xxx](https://hub.docker.com/r/vllm/vllm-openai/tags)：`vllm`框架镜像，直接根据版本号查。
+- [nvcr.io/nvidia/pytorch:xx.xx-py3](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/pytorch/tags):是 `NVIDIA` 提供的一个 `Pytorch` 的 `Docker` 镜像。其中包含了 `Pytorch` 以及 `GPU` 相关的库，`xx.xx` 表示版本，`py3` 表示内置使用 `python3` 。
 
 
 # docker常用命令&场景
@@ -41,21 +54,23 @@ Got permission denied while trying to connect to the Docker daemon socket at uni
 ```bash
 docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 ```
+
 常用`OPTIONS`:
 - `-itd`: `-it` 交互式终端，`-d`在后台运行容器，输入 `exit` 时容器不关闭;
 - `--name <container-name>`：设置容器名;
-- `--gpus all`:指定在容器中使用所有 `GPU`;
+- `--gpus all`:指定在容器中使用所有 `GPU`，也可以执行某一个GPU设备(如`--gpus "device=3"`)，或者某些GPU设备（如`--gpus "device=0,1,4"`）
 - `--shm-size <shared-memory-size>` ：设置共享 `CPU` 内存大小;
 - `-v <host-path>:<container-path>`：目录挂载，将宿主主机上的容器挂载到容器中，可多次添加;常用挂载路径有：
-  - `-v $HOME/.cache/modelscope/:/root/.cache/modelscope`：宿主主机`modelscope`默认缓存路径;
-  - `-v $HOME/.cache/huggingface/:/root/.cache/huggingface`：宿主主机`huggingface`默认缓存路径;
+  - `-v $HOME/.cache/modelscope/:/root/.cache/modelscope`：宿主主机 `modelscope` 默认缓存路径;
+  - `-v $HOME/.cache/huggingface/:/root/.cache/huggingface`：宿主主机 `huggingface` 默认缓存路径;
 - `--network host`：网络共享，使容器直接使用宿主机的网络;
 - `-e <cv-name>=<cv-value>` 环境变量：设置容器内环境变量 `<cv-name>` 的值为 `<cv-value>` ，可多次添加;
 - `--ipc=host`：进程间通信的命名空间共享，允许容器内的进程与宿主机上的进程进行通信，共享 `IPC` 命名空间;
-- `--rm`：容器关闭后自动删除;
+- `--rm`：容器停止后自动删除;
 - `--privileged`：权限
 
-调试`sglang`容器:
+
+调试`sglang`容器命令:
 ```bash
 docker run -itd \
     --gpus all \
@@ -89,9 +104,11 @@ docker run -itd \
 7. `ARG <key>=<value>`：设置镜像构建时的临时变量，容器运行时不生效；
 8. `ENTRYPOINT ["command", "param1", "param2"]`：定义容器启动时默认执行的主命令，可以在启动命令 `docker run --entrypoint /bin/bash` 指定**显式覆盖**掉启默认主命令为`/bin/bash`;
 
+# 镜像构建和同步共享
 
 ## 构建镜像（docker build）
-在命令行构建 `docker` 的指令：
+
+在命令行构建指令 `docker build` 使用可以通过`docker build --help 查看`，这里列举最常用的：
 
 ```bash
 docker build --build-arg <arg-key>=<arg-value>  -t <image-name>:<tag> -f <docker-file> <path>
@@ -104,8 +121,43 @@ docker build --build-arg <arg-key>=<arg-value>  -t <image-name>:<tag> -f <docker
 - `--no-cache`：构建过程中不使用缓存;
 - `--progress=plain`：表示构建进度的输出模式，有`auto`, `plain`, `tty`;
 
+## 构建调试
+
+调试的原理主要是参考 [Docker build cache](https://docs.docker.com/build/cache/): `Docker` 采用分层文件系统架构（ `UnionFS`，联合文件系统），每个 `Dockerfile` 指令在执行后都会生成独立的**只读镜像层**（ 可以通过 `docker history <image_name>` 来查看这些镜像层 ）。这些层通过联合挂载形成最终镜像的文件系统。在构建过程中，所有中间层均会被保留作为缓存（除非显式使用 `--squash` 参数或手动清理缓存），且每个层都可作为临时镜像用于调试。通过指定构建阶段（使用 `--target` 参数）或直接引用层的 `SHA256` 标识符，可启动对应的中间容器检查文件系统状态。这种分层机制实现了高效的存储复用和构建缓存，同时为镜像调试提供了精确的层级追溯能力。
+
+如有 `Dockerfile` 文件内容：
+```bash
+> cat Dockerfile            
+FROM ubuntu
+RUN echo "execute RUN1 command" >>/tmp/tmp.log
+RUN ceho "execute RUN2 command" >>/tmp/tmp.log
+```
+
+很明显第二个执行命令拼写错误（`echo --> ceho`）,此时镜像构建日志如下：
+
+```bash
+Sending build context to Docker daemon  2.048kB
+Step 1/3 : FROM ubuntu
+ ---> bf16bdcff9c9
+Step 2/3 : RUN echo "execute RUN1 command" >>/tmp/tmp.log
+ ---> Running in b128dadaa9c1
+ ---> Removed intermediate container b128dadaa9c1
+ ---> 2e7f2122aea9
+Step 3/3 : RUN ceho "execute RUN2 command" >>/tmp/tmp.log
+ ---> Running in 941d167c1381
+/bin/sh: 1: ceho: not found
+The command '/bin/sh -c ceho "execute RUN2 command" >>/tmp/tmp.log' returned a non-zero code: 127
+```
+
+可以看到 `Step 2/3`是执行成功的，并且镜像是 `2e7f2122aea9`，因此可以基于这个去调试执行后续指令：
+
+```bash
+> docker run -it 2e7f2122aea9 cat "/tmp/tmp.log"
+execute RUN1 command
+```
 
 ## 镜像上传远程仓库
+
 镜像构建好以后，我们可以把本地镜像 `docker push` 到远程镜像仓库，如 `Docker Hub` 等。
 1. 首先需要**给镜像打标签**:对于 `Docker Hub`，镜像名通常是 `<dockerhub-username>/<repo-name>:<tag>`。 如果你在 `docker build` 时已经用了这个格式，那这步可以跳过。如果没用，或者你想推送到不同的仓库/用户下，就需要重新打标签。
    ```bash
@@ -120,8 +172,9 @@ docker build --build-arg <arg-key>=<arg-value>  -t <image-name>:<tag> -f <docker
    docker push <image-name>:<tag>
    ```
 
-## 
+## 使用网络传输(保存到磁盘，并从磁盘导入镜像)
 
+docker save name -o 
 
 
 
