@@ -15,18 +15,18 @@ sticky:
 ---
 
 {% note success %}
-这里对于`docker`的基本概念不过多补充, 主要是个人在使用 `docker` 过程中的常用场景和命令。主要需要了解下镜像 (`image`) 、容器(`container`) 以及 仓库(`Repository`) 的概念。
+这里对于`docker`的基本概念不过多补充, 主要是个人在使用 `docker` 过程中的常用场景和命令。需要提前了解下 **镜像** (`image`) 、**容器**(`container`) 以及 **仓库**(`Repository`) 的概念。
 {% endnote %}
 
 # 安装docker
 
-根据官方 [Install Docker Engine](https://docs.docker.com/engine/install/)和[Install Docker Desktop](https://docs.docker.com/get-started/get-docker/) 介绍选择自己的主机安装即可。一般流程是先卸载旧版的`Docker Engine`，并且安装需要 `root` 权限。而在使用的时候一般是普通用户权限，就很容易遇到：
+根据官方 [Install Docker Engine](https://docs.docker.com/engine/install/)和[Install Docker Desktop](https://docs.docker.com/get-started/get-docker/) 介绍选择自己的主机安装即可。一般流程是先卸载旧版的`Docker Engine`然后安装。并且安装过程中需要 `root` 权限。而在使用的时候一般是普通用户权限，因此很容易遇到错误提示：
 
 ```bash
 Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/json": dial unix /var/run/docker.sock: connect: permission denied
 ```
 
-解决方案：参考[https://docs.docker.com/engine/install/linux-postinstall/](https://docs.docker.com/engine/install/linux-postinstall/) ，通过创建一个 `docker` 用户组，并将普通用户加入到 `docker` 用户组即可使用。
+解决方案参考[https://docs.docker.com/engine/install/linux-postinstall/](https://docs.docker.com/engine/install/linux-postinstall/) ：通过创建一个 `docker` 用户组，并将普通用户加入到 `docker` 用户组即可。
 
 # 下载docker镜像
 
@@ -196,7 +196,8 @@ docker image prune
 {% endnote %}
 
 ## Dockerfile语法
-常用 `Dockerfile` 语法：
+
+详细内容可以参考[docker-practice](https://docker-practice.github.io/zh-cn/image/dockerfile/)，常用 `Dockerfile` 语法有：
 1. `FROM <base-image>:<tag>`：指定基础镜像，告诉 `Docker` 要基于哪个现有的镜像开始构建；
 2. `WORKDIR /path/to/workdir`：设置工作目录，后续指令都会在这个目录下执行。如果目录不存在，`WORKDIR` 会自动创建；
 3. `RUN <command>`：在镜像内部执行命令，每条 `RUN` 指令都会在当前镜像的基础上创建一个新的层。为了减少镜像层数和体积，加快构建速度，通常把多个 `apt-get install` 或者 `pip install` 命令用 `&&` 连在一条 `RUN` 指令里；
