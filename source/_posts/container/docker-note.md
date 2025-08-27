@@ -102,7 +102,7 @@ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 加上对安全考虑没那么重要，直接使用 `--cap-add CAP_SYS_ADMIN` 权限足以，甚至 `--privileged` 权限即可。
 {% endnote %}
 
-`Linux Capabilities` 是 `Linux` 内核中一种细粒度的权限管理机制，由 `Linux` 内核在 `2.2` 版本引入，其**目的是将传统的 `root` 用户的全部特权拆分为多个独立的能力**（如 `CAP_NET_ADMIN`、`CAP_SYS_ADMIN` 等）。这一机制允许普通用户或进程在不完全获取 `root` 权限的情况下，执行特定的系统级操作（如绑定特权端口、修改网络配置等）。根据 `Linux` 系统内核版本的不同，其拆分为独立的 `Capabilities` 个数也不尽相同（在 `Linux 5.x` 版本的内核中将传统的 `root` 用户的全部特权拆分为38项独立的能力）。**当使用 `--privileged` 时，`Docker` 会继承宿主机所有 `Capabilities` 并开放设备访问权限 ，等同于赋予容器完整的 `root` 权限**。
+`Linux Capabilities` 是 `Linux` 内核中一种细粒度的权限管理机制，由 `Linux` 内核在 `2.2` 版本引入，其**目的是将传统的 `root` 用户的全部特权拆分为多个独立的能力**（如 `CAP_NET_ADMIN`、`CAP_SYS_ADMIN` 等）。这一机制允许普通用户或进程在不完全获取 `root` 权限的情况下，执行特定的系统级操作（如绑定特权端口、修改网络配置等）。根据 `Linux` 系统内核版本的不同，其拆分为独立的 `Capabilities` 个数也不尽相同（在 `Linux 5.x` 版本的内核中将传统的 `root` 用户的全部特权拆分为38项独立的能力），而在 `docker` 中默认只会给其中一部分权限,可通过`--cap-add` 和 `--cap-drop`来增加和减少权限能力。**当使用 `--privileged` 时，`Docker` 会继承宿主机所有 `Capabilities` 并开放设备访问权限 ，等同于赋予容器完整的 `root` 权限**。
 
 最常见的添加权限是 `CAP_SYS_ADMIN` ，这个属于**高危操作（涉及系统管理操作）**，如：
 - 挂载/卸载文件系统（如 `mount`、`umount`）；
@@ -113,7 +113,7 @@ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 
 使用方式如下：
 ```bash
-docker run --cap-add=SYS_ADMIN 。。。。
+docker run --cap-add=SYS_ADMIN ...
 ```
 
 其实在 `Linux` 系统中，设备其实就是文件，在一定程度上通过精确挂载设备文件或目录可以避免使用 `CAP_SYS_ADMIN` 权限。但若需动态管理设备 或执行系统级操作 （如挂载文件系统、修改内核参数），则不可避免的需要 `CAP_SYS_ADMIN` 权限。
