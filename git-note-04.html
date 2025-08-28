@@ -1,0 +1,917 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+  <meta name="google-site-verification" content="nQ8729AnKDZY2U4_QCMQ7BB6o7OyJpa75_Q_8k4Ljpw" />
+  <meta name="msvalidate.01" content="553A47BF1E6E17422F1C43839732ABA2" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tang Zhen">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="这个是使用Git过程中比较常用的 Merge Request 和 Pull Request 工作流">
+<meta property="og:type" content="article">
+<meta property="og:title" content="git工作流之 MR 和 PR">
+<meta property="og:url" content="https://tzhelloworld.top/git-note-04.html">
+<meta property="og:site_name" content="TZ">
+<meta property="og:description" content="这个是使用Git过程中比较常用的 Merge Request 和 Pull Request 工作流">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tzhelloworld.top/img/post/git.png">
+<meta property="article:published_time" content="2025-06-08T08:26:50.000Z">
+<meta property="article:modified_time" content="2025-08-20T10:16:59.515Z">
+<meta property="article:author" content="Tang Zhen">
+<meta property="article:tag" content="Git">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tzhelloworld.top/img/post/git.png">
+  
+  
+  
+  <title>git工作流之 MR 和 PR - TZ</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mac.css">
+<link rel="stylesheet" href="/css/tabs.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"tzhelloworld.top","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"always","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":2},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"pGOGT810g08Vym77Q7dyHIMa-MdYXbMMI","app_key":"zrQsxe52zK87DkQmLq0LJL4D","server_url":"https://pgogt810.api.lncldglobal.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>TZ</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/site-map/" target="_self">
+                <i class="iconfont icon-books"></i>
+                <span>导航页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="git工作流之 MR 和 PR"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-06-08 16:26" pubdate>
+          2025年6月8日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          12 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="Git"
+        id="heading-0bcc70105ad279503e31fe7b3f47b665" role="tab" data-toggle="collapse" href="#collapse-0bcc70105ad279503e31fe7b3f47b665"
+        aria-expanded="true"
+      >
+        Git
+        <span class="list-group-count">(4)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-0bcc70105ad279503e31fe7b3f47b665"
+           role="tabpanel" aria-labelledby="heading-0bcc70105ad279503e31fe7b3f47b665">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/git-note-01.html" title="git基础知识"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">git基础知识</span>
+        </a>
+      
+    
+      
+      
+        <a href="/git-note-02.html" title="本地仓库的使用"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">本地仓库的使用</span>
+        </a>
+      
+    
+      
+      
+        <a href="/git-note-03.html" title="git远程仓库"
+           class="list-group-item list-group-item-action
+           ">
+          <span class="category-post">git远程仓库</span>
+        </a>
+      
+    
+      
+      
+        <a href="/git-note-04.html" title="git工作流之 MR 和 PR"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">git工作流之 MR 和 PR</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">git工作流之 MR 和 PR</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <div class="note note-success">
+            <p>这里对在工作中使用的最多<code>MR</code> (<code>Merge Request</code>)和在开源社区使用最多的<code>PR</code> (<code>Pull Request</code>) 内容介绍以及工作流进行阐述。开始之前，借用<code>Gitlab</code>的官方解释:</p><p><em>Merge or pull requests are created in a git management application and ask an assigned person to merge two branches. Tools such as GitHub and Bitbucket choose the name pull request since the first manual action would be to pull the feature branch. Tools such as GitLab and Gitorious choose the name merge request since that is the final action that is requested of the assignee. In this article we’ll refer to them as merge requests.</em></p><p>翻译过来简单理解就是：这两个没有本质区别，站在不同立场说法不一样而已。【个人更倾向于使用<code>MR</code>进行表述，而<code>PR</code>感觉是在<code>github</code>设计之初，命名随意，导致后续版本迭代和需求复用了之前的名字，最后就约定俗成了】</p><p>看网上介绍，大体叫法是：</p><ul><li><code>Github</code>仓库, 合代码操作一般叫做<code>Pull Request</code>, 对应的是<code>fork</code>工作流。</li><li><code>Gitlab</code>仓库, 合代码操作一般叫做<code>Merge Request</code>, 对应的是 <code>Merge</code> 工作流。</li></ul>
+          </div>
+
+
+
+<h1 id="为什么会有-MR-和-PR-？"><a href="#为什么会有-MR-和-PR-？" class="headerlink" title="为什么会有 MR 和 PR ？"></a>为什么会有 MR 和 PR ？</h1><blockquote>
+<p>总结起来就是：<code>MR</code>是为了能在合代码之前做一次 <code>Code Review</code>。</p>
+</blockquote>
+<p><code>MR</code> (或者<code>PR</code>) 就是指将你开发的代码内容以一种<strong>请求合并</strong>的方式合到它想去的分支上，不过在此之前，需要对代码进行 <code>Code Review</code>(代码复审&#x2F;审查&#x2F;检视)，这个请求的接收人 (<code>Reviewer</code>) 一般是项目、团队的负责人或者其他成员。<code>Code Review</code> 能够提升代码的质量以及减少 <code>Bug</code> 的产生概率。</p>
+<p><code>Merge Request</code>作为 <code>Code review</code> 中的重要一环。在代码审查时，会以本次请求的合并内容为单元进行代码审查；如果审查通过，那么就成功合并。如果出现争议，就可以在相关<code>MR</code>链接上进行评论，方便多人协作讨论。</p>
+<h1 id="Merge工作流"><a href="#Merge工作流" class="headerlink" title="Merge工作流"></a>Merge工作流</h1><h2 id="创建远程仓库，默认使用master分支"><a href="#创建远程仓库，默认使用master分支" class="headerlink" title="创建远程仓库，默认使用master分支"></a>创建远程仓库，默认使用master分支</h2><p>在 <code>gitlab</code> 仓库中创建一个远程仓库，并且使用默认分支 <code>master</code>:</p>
+<p><img src="/img/assets/git-note-04/image.png" srcset="/img/loading.gif" lazyload alt="创建远程仓库"></p>
+<h2 id="创建本地仓库，并关联远程仓库"><a href="#创建本地仓库，并关联远程仓库" class="headerlink" title="创建本地仓库，并关联远程仓库"></a>创建本地仓库，并关联远程仓库</h2><p>可以直接在本地初始化一个空的仓库，并添加远程仓库地址。之后通过<code>git pull</code>的方式拉取最新代码，并将 <code>master</code> 分支关联到远程仓库上：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">git init<br>git remote add origin https://github.com/xxxx/xxx.git<br>git pull <span class="hljs-comment"># 拉取内容</span><br>git push -u origin master<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p><code>git push -u</code> 的作用就是将远程仓库 <code>origin</code> 的 <code>master</code> 分支与本地分支进行关联，并推送当前内容到远程分支上。</p>
+</blockquote>
+<p>当然也可以直接通过 <code>git clone</code> 方式获取仓库内容，再关联远程分支和本地分支:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">git <span class="hljs-built_in">clone</span> https://github.com/xxxx/xxx.git<br><br>git branch --set-upstream-to &lt;本地分支&gt; &lt;远程主机名&gt;/&lt;远程分支名&gt;<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>注意，在使用 <code>git clone</code> 时，<code>Git</code> 默认会创建一个与远程仓库中默认分支（如 <code>main</code> 或 <code>master</code>）关联的本地分支，并设置该分支跟踪远程的同名分支</p>
+</blockquote>
+<h2 id="构建dev和feature分支"><a href="#构建dev和feature分支" class="headerlink" title="构建dev和feature分支"></a>构建dev和feature分支</h2><div class="note note-warning">
+            <p>在项目开发中，为了保持主分支（<code>main/master</code>）的稳定性，团队通常会遵循以下分支管理策略：</p><ul><li><p><strong>主分支（<code>main/master</code>）</strong>：仅用于发布生产环境代码，禁止直接提交。所有变更必须通过其他分支合并（如测试通过的<code>dev</code>或<code>release</code>分支）。</p></li><li><p><strong>开发分支（<code>dev</code>）</strong>：作为集成分支，合并所有已完成的功能模块。日常开发基于此分支创建子分支。</p></li><li><p><strong>功能分支（<code>feature/xxx</code>）</strong>：开发者从<code>dev</code>分支切出个人分支（如<code>feature/user-auth</code>），专注特定模块开发。完成后通过<code>Pull Request/Merge Request</code>合并回<code>dev</code>分支。（后续忽略<code>user-auth</code>进行表述）</p></li></ul>
+          </div>
+
+<p>可以在远程仓库上创建 <code>dev</code> 分支，然后通过 <code>git pull</code> 的方式拉取到本地，此时本地分支命名为 <code>origin/dev</code>, 一般需要创建本地分支<code>dev</code>并关联远程分支<code>origin/dev</code>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">git pull<br><br><span class="hljs-comment"># 创建新分支，默认会关联远程分支（前提是该分支在本地是没有的）</span><br>git checkout -b dev origin/dev<br></code></pre></td></tr></table></figure>
+
+<p>也可以在本地仓库创建<code>dev</code>分支，然后在推送时候指定给他一个远程仓库分支：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看所有分支确保本地没有dev分支</span><br>git branch -a<br><br><span class="hljs-comment"># 创建一个新分支 dev</span><br>git checkout -b dev<br><br><span class="hljs-comment"># 推送dev分支到远程仓库，并关联为 远程origin仓库的dev分支</span><br>git push -u origin dev<br></code></pre></td></tr></table></figure>
+
+<p>通过提交一些记录，来模拟开发过程，这里的提交记录有：</p>
+<p><img src="/img/assets/git-note-04/image-1.png" srcset="/img/loading.gif" lazyload alt="提交记录"></p>
+<h2 id="开始MR"><a href="#开始MR" class="headerlink" title="开始MR"></a>开始MR</h2><p><strong>功能分支（<code>feature</code>）</strong>开发完成后，通常需要合并到 <code>dev</code> 分支。虽然可以直接使用 <code>git merge</code> 或 <code>git rebase</code> 在本地完成合并，但这样会跳过 <code>Code Review</code>，不利于团队协作和代码质量管控。比如，对于分支使用 <code>git Merge</code> 本地合并的：<br><img src="/img/assets/git-note-04/mr.jpg" srcset="/img/loading.gif" lazyload alt="本地merge逻辑，不推荐"></p>
+<p>此时的<strong>正确做法</strong>应该是：仅提交 <code>feature</code> 分支的代码变更，无需在本地手动合并到 <code>dev</code>。而是通过远程仓库（如 <code>GitLab/GitHub</code>）的 <code>Merge Request（MR）</code>或 <code>Pull Request（PR）</code>功能 来<strong>发起合并请求</strong>。如新建一个<code>MR</code>:</p>
+<p><img src="/img/assets/git-note-04/image-2.png" srcset="/img/loading.gif" lazyload alt="New merge request"></p>
+<p>上述操作从源分支合并到目标分支中，相当于本地想做 <code>git merge &lt;source branch&gt; &lt;target branch&gt;</code> 操作，需要填写相关内容：</p>
+<p><img src="/img/assets/git-note-04/image-3.png" srcset="/img/loading.gif" lazyload alt="MR information"></p>
+<p>此时，可以继续<code>feature</code>分支代码的提交和变更，而 <code>feature</code> 分支最新代码的内容变更也会在 <code>MR</code> 中体现。</p>
+<p><img src="/img/assets/git-note-04/image-4.png" srcset="/img/loading.gif" lazyload alt="feature更新内容在MR中体现"></p>
+<p>然后就可以由审核人员查看信息。</p>
+<div class="note note-warning">
+            <p>如果 <code>Merge Request（MR）</code> 包含的代码量过大，会导致 <code>Review</code> 成本过高，团队成员可能不愿意或无法高效完成审查，从而很影响效率。解决思路有：</p><ul><li>控制 <code>MR</code> 的代码规模</li><li>避免一次性提交大量代码，而是分批次合并可独立运行的模块。</li><li>使用 <code>git rebase -i</code> 整理提交历史</li></ul><p>总之，<strong>核心原则就是让每个MR小而专注，让<code>Review</code>高效可持续</strong>。</p>
+          </div>
+
+<h1 id="fork工作流"><a href="#fork工作流" class="headerlink" title="fork工作流"></a>fork工作流</h1><p>&#x2F;&#x2F;todo 待更新。。。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/" class="category-chain-item">技术栈</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/Git/" class="category-chain-item">Git</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Git/" class="print-no-link">#Git</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>git工作流之 MR 和 PR</div>
+      <div>https://tzhelloworld.top/git-note-04.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tang Zhen</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年6月8日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2025年8月20日</div>
+        </div>
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="NC - 非商业性使用">
+                    <i class="iconfont icon-cc-nc"></i>
+                  </span>
+                </a>
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="SA - 相同方式共享">
+                    <i class="iconfont icon-cc-sa"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/docker-note.html" title="Docker">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Docker</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/git-note-03.html" title="git远程仓库">
+                        <span class="hidden-mobile">git远程仓库</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"pGOGT810g08Vym77Q7dyHIMa-MdYXbMMI","appKey":"zrQsxe52zK87DkQmLq0LJL4D","path":"window.location.pathname","placeholder":"o(≧∀≦)o  来啊，快活啊! （国内ip，无法评论~） ","avatar":"mp","meta":["nick","mail","link"],"requiredFields":[],"pageSize":20,"lang":"zh-CN","highlight":false,"recordIP":true,"serverURLs":"https://pgogt810.api.lncldglobal.com","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+  
+<script src="/js/tabs.js"></script>
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

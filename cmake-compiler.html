@@ -1,0 +1,952 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  
+  <meta name="google-site-verification" content="nQ8729AnKDZY2U4_QCMQ7BB6o7OyJpa75_Q_8k4Ljpw" />
+  <meta name="msvalidate.01" content="553A47BF1E6E17422F1C43839732ABA2" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Tang Zhen">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="GCC介绍GCC：是 GNU Compiler Collection(GNU 编译器套装)缩写，一个由 GNU 开发用于 Linux 系统下编程的编译器。GDB是GNU开源组织发布的一个强大的UNIX下的程序调试工具。  gcc 是 GCC 中的GUNC Compiler（C 编译器） g++ 是 GCC 中的GUN C++ Compiler（C++ 编译器）               但是并">
+<meta property="og:type" content="article">
+<meta property="og:title" content="编译初探究之gcc&amp;make&amp;cmake">
+<meta property="og:url" content="https://tzhelloworld.top/cmake-compiler.html">
+<meta property="og:site_name" content="TZ">
+<meta property="og:description" content="GCC介绍GCC：是 GNU Compiler Collection(GNU 编译器套装)缩写，一个由 GNU 开发用于 Linux 系统下编程的编译器。GDB是GNU开源组织发布的一个强大的UNIX下的程序调试工具。  gcc 是 GCC 中的GUNC Compiler（C 编译器） g++ 是 GCC 中的GUN C++ Compiler（C++ 编译器）               但是并">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tzhelloworld.top/img/post/cmake.svg">
+<meta property="article:published_time" content="2025-07-02T15:36:52.000Z">
+<meta property="article:modified_time" content="2025-08-20T10:16:59.512Z">
+<meta property="article:author" content="Tang Zhen">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="gcc">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://tzhelloworld.top/img/post/cmake.svg">
+  
+  
+  
+  <title>编译初探究之gcc&amp;make&amp;cmake - TZ</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+  
+<link rel="stylesheet" href="/css/mac.css">
+<link rel="stylesheet" href="/css/tabs.css">
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"tzhelloworld.top","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"always","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":2},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":"pGOGT810g08Vym77Q7dyHIMa-MdYXbMMI","app_key":"zrQsxe52zK87DkQmLq0LJL4D","server_url":"https://pgogt810.api.lncldglobal.com","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>TZ</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/site-map/" target="_self">
+                <i class="iconfont icon-books"></i>
+                <span>导航页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="编译初探究之gcc&amp;make&amp;cmake"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-07-02 23:36" pubdate>
+          2025年7月2日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          32 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar category-bar" style="margin-right: -1rem">
+    
+
+
+
+
+
+<div class="category-list">
+  
+  
+    
+    
+    
+    <div class="category row nomargin-x">
+      <a class="category-item 
+          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="Linux"
+        id="heading-edc9f0a5a5d57797bf68e37364743831" role="tab" data-toggle="collapse" href="#collapse-edc9f0a5a5d57797bf68e37364743831"
+        aria-expanded="true"
+      >
+        Linux
+        <span class="list-group-count">(1)</span>
+        <i class="iconfont icon-arrowright"></i>
+      </a>
+      
+      <div class="category-collapse collapse show" id="collapse-edc9f0a5a5d57797bf68e37364743831"
+           role="tabpanel" aria-labelledby="heading-edc9f0a5a5d57797bf68e37364743831">
+        
+        
+          
+  <div class="category-post-list">
+    
+    
+      
+      
+        <a href="/cmake-compiler.html" title="编译初探究之gcc&amp;make&amp;cmake"
+           class="list-group-item list-group-item-action
+           active">
+          <span class="category-post">编译初探究之gcc&amp;make&amp;cmake</span>
+        </a>
+      
+    
+  </div>
+
+        
+      </div>
+    </div>
+  
+</div>
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">编译初探究之gcc&amp;make&amp;cmake</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="GCC介绍"><a href="#GCC介绍" class="headerlink" title="GCC介绍"></a>GCC介绍</h1><p><code>GCC</code>：是 <code>GNU Compiler Collection</code>(<code>GNU</code> 编译器套装)缩写，一个由 <code>GNU</code> 开发用于 <code>Linux</code> 系统下编程的编译器。<code>GDB</code>是<code>GNU</code>开源组织发布的一个强大的<code>UNIX</code>下的程序调试工具。</p>
+<ul>
+<li><code>gcc</code> 是 <code>GCC</code> 中的<code>GUNC Compiler</code>（<code>C</code> 编译器）</li>
+<li><code>g++</code> 是 <code>GCC</code> 中的<code>GUN C++ Compiler</code>（<code>C++</code> 编译器）</li>
+</ul>
+<div class="note note-success">
+            <p>但是并 <strong>不是说 <code>gcc</code> 编译 <code>c</code> 语言，<code>g++</code> 编译 <code>c++</code>。而是<code>gcc</code>调用了 <code>C compiler</code>，而 <code>g++</code> 调用了 <code>C++ compiler</code>。</strong>主要区别在于： </p><ul><li>对于 <code>*.c</code> 和 <code>*.cpp</code> 文件，<code>gcc</code>分别当做<code>c</code>和<code>cpp</code>文件编译（c和cpp的语法强度是不一样的）</li><li>对于 <code>*.c</code>和<code>*.cpp</code>文件，<code>g++</code>则统一当做<code>cpp</code>文件编译</li><li>使用<code>g++</code>编译文件时，<strong>g++会自动链接标准库STL，而gcc不会自动链接STL</strong></li><li><code>gcc</code> 在编译 <code>C</code> 文件时，可使用的预定义宏是比较少的</li><li><code>gcc</code> 在编译 <code>cpp</code> 文件时 &#x2F; <code>g++</code> 在编译 <code>c</code> 文件和 <code>cpp</code> 文件时（这时候 <code>gcc</code> 和 <code>g++</code> 调用的都是 <code>cpp</code> 文件的编译器），会加入一些额外的宏。</li><li>在用 <code>gcc</code> 编译 <code>c++</code> 文件时，为了能够使用<code>STL</code>，需要加参数 <code>–lstdc++</code> ，但这并不代表 <code>gcc –lstdc++</code> 和 <code>g++</code> 等价，它们的区别不仅仅是这个。</li></ul>
+          </div>
+
+<h1 id="gcc"><a href="#gcc" class="headerlink" title="gcc"></a>gcc</h1><h2 id="gcc编译单个文件"><a href="#gcc编译单个文件" class="headerlink" title="gcc编译单个文件"></a>gcc编译单个文件</h2><p>创建一个单个文件，如 <code>vim hello.c</code> :</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>&#123;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello,world.\n&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>然后进行编译执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 编译，会在当前生成名字为 a.out 的可执行二进制文件</span><br>gcc hello.c <br><br><span class="hljs-comment"># 执行编译后的二进制文件</span><br>./a.out<br></code></pre></td></tr></table></figure>
+
+<h2 id="gcc编译两个文件"><a href="#gcc编译两个文件" class="headerlink" title="gcc编译两个文件"></a>gcc编译两个文件</h2><p>需要创建两个源码文件，<code>vim main.c</code>，内容如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c">include&lt;stdio.h&gt;<br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span>&#123;<br>	<span class="hljs-type">double</span> angle;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;main function is exec...\n&quot;</span>);<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;input the angle:&quot;</span>);<br>	<span class="hljs-built_in">scanf</span>(<span class="hljs-string">&quot;%lf&quot;</span>,&amp;angle);<br>	sin_value(angle);<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>然后创建第二个源码文件，<code>vim seconds.c</code>:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;math.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PI 3.141592653 </span><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">sin_value</span><span class="hljs-params">(<span class="hljs-type">double</span> angle)</span></span>&#123;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;seconds fun is exec ...\n&quot;</span>);<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;angle = %f, and sin(angle)=%f\n&quot;</span>,angle,<span class="hljs-built_in">sin</span>(PI / <span class="hljs-number">180</span> * angle));<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>执行编译过程：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 编译两个源码文件，生成对应的目标文件(结尾为.o)</span><br>gcc -c main.c seconds.c<br><br><span class="hljs-comment"># 链接两个目标文件，并生成可执行二进制文件，并命名为 binary</span><br>gcc -o binary main.o seconds.o -lm <br><br><span class="hljs-comment"># 执行 </span><br>./binary<br><span class="hljs-comment"># 执行输出内容 =============&gt;</span><br>main <span class="hljs-keyword">function</span> is <span class="hljs-built_in">exec</span>...<br>input the angle:30<br>seconds fun is <span class="hljs-built_in">exec</span> ...<br>angle = 30.000000, and sin(angle)=0.500000<br></code></pre></td></tr></table></figure>
+
+<p><strong>说明</strong>：上述过程中创建了两个源码文件，其中<code>main.c</code>文件中函数依赖于<code>seconds.c</code>文件中<code>sin_value(double angle)</code>函数。</p>
+<p>首先是<strong>编译过程</strong>，通过<code>gcc -c</code>将源码文件编译成目标文件<code>main.o</code>和<code>seconds.o</code>。然后对目标文件进行<strong>链接操作</strong>，通过<code>gcc -o</code>将目标文件链接，并生成可执行文件<code>binary</code>。在链接过程中，由于<code>seconds.c</code>文件中调用了数学函数库<code>math.h</code>。需要依赖于外部的函数库。在<code>Linux</code>系统中，<code>gcc</code>默认会使用<code>/lib</code>和<code>/lib64</code>的函数库。如果要使用自定义位置的函数库，可通过<code>-L&#123;Path&#125;</code>来添加；当然可以通过<code>-I&#123;Path&#125;</code>来指定<code>include</code>文件的目录（这个默认使用的是<code>/usr/include</code>）。对于使用数学函数库<code>math.h</code>可以通过加<code>-lm</code>来指定，也就是表示要使用<code>libm.so</code>这个函数库。</p>
+<h1 id="make"><a href="#make" class="headerlink" title="make"></a>make</h1><p>其实对于上述<code>gcc</code>编译两个文件例子中，如果每次修改了源码，都需要重新执行<code>编译</code>和<code>链接</code>两个过程。如果一旦源码文件很多了，重复操作很繁琐。就可以通过<code>make</code>来一个步骤完成（使用<code>makefile</code>文件然后使用<code>make</code>宏编译）。在一些最小安装的<code>Linux</code>系统中，默认是不安装<code>make</code>的（<code>Ubuntu</code>安装<code>make</code>可通过：<code>sudo apt-get install make</code>）。</p>
+<h2 id="使用make编译小例子"><a href="#使用make编译小例子" class="headerlink" title="使用make编译小例子"></a>使用make编译小例子</h2><p>在目录中创建一个<code>makefile</code>文件, <code>vim makefile</code>, 且内容如下(注意: 在每个 <code>targets(main,clean)</code> 下面一行都有个<code>&lt;tab&gt;</code>)：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-section">main: main.o seconds.o</span><br>    gcc -o binary main.o seconds.o -lm<br><span class="hljs-section">clean:</span><br>    rm -f binary main.o seconds.o<br></code></pre></td></tr></table></figure>
+
+<p>然后需要通过<code>cmake</code>进行编译:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 编译，也就是执行main的指令，等价于make main</span><br>make <br><br><span class="hljs-comment"># 清理，也就是执行clean下的指令。</span><br>make clean <br></code></pre></td></tr></table></figure>
+<p><strong>注意</strong>，默认使用的文件名为<code>makefile</code>，当然可以在<code>make</code>时候通过添加参数<code>-f</code>指定文件名，比如<code>Makefile</code>文件编译可通过:<code>make -f Makefile clean</code>，并且如果<code>makefile</code>文件内容很多，导致运行过程中不知道有多少个<code>targets</code>，可以通过<code>make &lt;tab&gt;</code>来通过<code>Bash</code>补全。</p>
+<h2 id="makefile语法"><a href="#makefile语法" class="headerlink" title="makefile语法"></a>makefile语法</h2><p><code>makefile</code>的基本语法规则为：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-section">target: 目标文件1 目标文件2...</span><br>	gcc -o 可执行文件的名字 目标文件1 目标文件2... 等<br></code></pre></td></tr></table></figure>
+<p>在<code>makefile</code>文件中注释是<code>#</code>，并且一个文件中可以建立多个<code>target</code>。<code>make</code>默认的<code>target</code>是<code>main</code>。在 <code>makefile</code> 文件中也可以定义变量，通过 <code>=</code> 来设置，并且使用 <code>$&#123;&#125;</code> 或者 <code>$()</code> 来使用变量。</p>
+<h1 id="cmake"><a href="#cmake" class="headerlink" title="cmake"></a>cmake</h1><p>当工程量很大的时候，手写<code>makefile</code>又是一个很繁琐且枯燥的工作。如果换了一个平台，可能又得重新编写<code>makefile</code>（依赖库环境等不同导致）。如果软件想跨平台，必须要保证能够在不同平台编译。而如果使用<code>make</code>工具，就得为每一种标准写一次<code>makefile</code> ，这将是一件让人抓狂的工作。因此，就衍生出来了<code>cmake</code>。其功能主要是通过<code>cmake</code>侦察工作环境，自动生成一个<code>makefile</code>文件，以便<code>make</code>工具使用。</p>
+<div class="note note-success">
+            <p>除此之外，也有通过编写脚本去侦测工作环境。比如<code>configure</code>或<code>config</code>，侦测完成后，创建<code>makefile</code>文件。也有由<code>QT</code>提供的一个编译打包工具<code>qmake</code>，编译<code>pro</code>项目生成<code>makefile</code>文件。</p>
+          </div>
+
+<h2 id="使用步骤"><a href="#使用步骤" class="headerlink" title="使用步骤"></a>使用步骤</h2><p>在<code>linux</code>平台下使用<code>CMake</code>生成<code>Makefile</code>并编译的流程如下：</p>
+<ol>
+<li>写<code>cmake</code>配置文件<code>CMakeLists.txt</code>。</li>
+<li>执行命令 <code>cmake PATH</code> 或者 <code>ccmake PATH</code> 或者<code>cmake-gui</code>生成 <code>Makefile</code>（<code>ccmake</code> 和 <code>cmake</code> 的区别在于前者提供了一个交互式的界面，而<code>cmake-gui</code>则是直接使用<code>GUI</code>界面操作）。其中， <code>PATH</code> 是 <code>CMakeLists.txt</code> 所在的目录。</li>
+<li>使用 <code>make</code> 命令进行编译。</li>
+</ol>
+<p><img src="/../../img/assets/cmake-compiler/Pasted%20image%2020230305144307.png" srcset="/img/loading.gif" lazyload alt="使用make编译流程"></p>
+<h2 id="CMakeLists-txt文件编写规则"><a href="#CMakeLists-txt文件编写规则" class="headerlink" title="CMakeLists.txt文件编写规则"></a><code>CMakeLists.txt</code>文件编写规则</h2><p>CMake的命令有不同类型，包括<strong>脚本命令、项目配置命令和测试命令</strong>，具体可以参考官网：<a target="_blank" rel="noopener" href="https://cmake.org/cmake/help/latest/guide/tutorial/index.html">CMake 教程 — CMake 3.26.0-rc5 文档</a></p>
+<p>这里创建一个最简单的文件<code>main.c</code>，内容如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span>&#123;<br>	<span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">1</span>; i &lt; <span class="hljs-number">100</span>; ++i)&#123;<br>		<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%d\n&quot;</span>,i);<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在同一目录下创建<code>CMakeLists.txt</code>文件，且内容如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"># CMake 最低版本号要求<br><span class="hljs-built_in">cmake_minimum_required</span> (VERSION <span class="hljs-number">2.8</span>)<br><br># 项目信息<br><span class="hljs-built_in">project</span> (Demo_for)<br><br># 指定生成目标<br><span class="hljs-built_in">add_executable</span>(Demo main.c)<br></code></pre></td></tr></table></figure>
+<p>说明：</p>
+<ol>
+<li><code>cmake_minimum_required</code>：指定运行此配置文件所需的<code>CMake</code>的最低版本；</li>
+<li><code>project</code>：参数值是 <code>Demo_for</code>，该命令表示项目的名称是 <code>Demo_for</code> 。</li>
+<li><code>add_executable</code>：将名为<code>main.c</code>的源文件编译成一个名称为<code>Demo</code>的可执行文件。</li>
+</ol>
+<h2 id="cmake的使用"><a href="#cmake的使用" class="headerlink" title="cmake的使用"></a>cmake的使用</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看当前文件</span><br>&gt; <span class="hljs-built_in">ls</span><br>CMakeLists.txt  main.c<br><br>&gt; cmake .   <span class="hljs-comment"># &lt;=== 制作makefile开始，在当前文件夹下找CMakeLists.txt文件</span><br>CMake Deprecation Warning at CMakeLists.txt:2 (cmake_minimum_required):<br>  Compatibility with CMake &lt; 2.8.12 will be removed from a future version of<br>  CMake.<br><br>  Update the VERSION argument &lt;min&gt; value or use a ...&lt;max&gt; suffix to tell<br>  CMake that the project does not need compatibility with older versions.<br><br><br>-- The C compiler identification is GNU 11.3.0<br>-- The CXX compiler identification is GNU 11.3.0<br>-- Detecting C compiler ABI info<br>-- Detecting C compiler ABI info - <span class="hljs-keyword">done</span><br>-- Check <span class="hljs-keyword">for</span> working C compiler: /usr/bin/cc - skipped<br>-- Detecting C compile features<br>-- Detecting C compile features - <span class="hljs-keyword">done</span><br>-- Detecting CXX compiler ABI info<br>-- Detecting CXX compiler ABI info - <span class="hljs-keyword">done</span><br>-- Check <span class="hljs-keyword">for</span> working CXX compiler: /usr/bin/c++ - skipped<br>-- Detecting CXX compile features<br>-- Detecting CXX compile features - <span class="hljs-keyword">done</span><br>-- Configuring <span class="hljs-keyword">done</span><br>-- Generating <span class="hljs-keyword">done</span><br>-- Build files have been written to: /cmake<br><br>&gt; ll  <span class="hljs-comment"># 编译完成后新增加内容。</span><br>-rw-rw-r-- 1 user user 13785  3月  5 15:00 CMakeCache.txt<br>drwxrwxr-x 5 user user  4096  3月  5 15:00 CMakeFiles/<br>-rw-rw-r-- 1 user user  1634  3月  5 15:00 cmake_install.cmake<br>-rw-rw-r-- 1 user user   150  3月  5 14:55 CMakeLists.txt<br>-rw-rw-r-- 1 user user    87  3月  5 14:48 main.c<br>-rw-rw-r-- 1 user user  5065  3月  5 15:00 Makefile<br></code></pre></td></tr></table></figure>
+<p><strong>说明</strong>，上述内容中，通过<code>cmake</code>指令对源程序<code>main.c</code>以及对应的<code>CMakeLists.txt</code>生成在该环境下的<code>makefile</code>，该过程中生成了一些<code>CMakeCache</code>等文件。其作用如下：</p>
+<ol>
+<li><code>CMakeCache.txt</code>：<code>CMake</code>中的缓存变量都会保存在<code>CMakeCache.txt</code>文件中。</li>
+<li><code>CMakeFIles/</code>：包含由<code>CMake</code>在配置期间生成的临时文件。</li>
+<li><code>cmake_install.cmake</code>：<code>CMake</code>脚本处理安装规则，并在安装时使用。</li>
+</ol>
+<p>在<code>Ubuntu</code>中默认是不安装<code>cmake</code>的，安装如下：<code>sudo apt-get install cmake</code></p>
+<blockquote>
+<p>在使用<code>cmake</code>过程中可以指定参数<code>-G</code>、<code>--build</code>等，其他具体内容也可以查看官网或者使用<code>man cmake</code>在系统中查看。</p>
+</blockquote>
+<h2 id="ccmake的使用"><a href="#ccmake的使用" class="headerlink" title="ccmake的使用"></a>ccmake的使用</h2><p><img src="/../../img/assets/cmake-compiler/Pasted%20image%2020230306100155.png" srcset="/img/loading.gif" lazyload alt="ccmake的使用流程"></p>
+<p><code>ccmake</code>有两种用法:</p>
+<ol>
+<li>方案一：通过直接对<code>CMakeLists.txt</code>文件生成<code>makefile</code>文件。相对于<code>cmake</code>而言，其提供了一种字符界面的<code>GUI</code>操作面板。更加直观。</li>
+<li>方案二：对<code>cmake</code>操作过后的<code>cache</code>文件进行修改，重新生成<code>makefile</code>文件。</li>
+</ol>
+<div class="note note-success">
+            <p>方案一可以理解为从无到有的生成，而方案二则可以理解为修改默认配置文件，类似于去<code>modify</code>。</p><p>除此之外，<code>ccmake</code>包含在<code>cmake-curses-gui</code>包中，所以安装命令：<code>sudo apt-get install cmake-cures-gui</code></p>
+          </div>
+
+<p>这里首先对方案一进行展示使用过程：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">&gt; </span><span class="language-bash"><span class="hljs-built_in">ls</span></span><br>CMakeLists.txt  main.c<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">&gt; </span><span class="language-bash">ccmake .</span><br>EMPTY CACHE<br><br>EMPTY CACHE: <br>Keys: [enter] Edit an entry [d] Delete an entry <br>CMake Version 3.22.1<br>      [l] Show log output   [c] Configure<br>      [h] Help              [q] Quit without generating<br>      [t] Toggle advanced mode (currently off)<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">&gt; </span><span class="language-bash">c  <span class="hljs-comment"># &lt;==键盘输入c表示配置</span></span><br><br>CMake Deprecation Warning at CMakeLists.txt:2 (cmake_minimum_required):<br>   Compatibility with CMake &lt; 2.8.12 will be removed from a future version of<br>   CMake.<br><br>   Update the VERSION argument &lt;min&gt; value or use a ...&lt;max&gt; suffix to tell<br>   CMake that the project does not need compatibility with older versions.<br><br> The C compiler identification is GNU 11.3.0<br> The CXX compiler identification is GNU 11.3.0<br> Detecting C compiler ABI info<br> Detecting C compiler ABI info - done<br> Check for working C compiler: /usr/bin/cc - skipped<br> Detecting C compile features<br> Detecting C compile features - done<br> Detecting CXX compiler ABI info<br> Detecting CXX compiler ABI info - done<br> Check for working CXX compiler: /usr/bin/c++ - skipped<br> Detecting CXX compile features<br> Detecting CXX compile features - done<br> Configuring done<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">&gt; </span><span class="language-bash">g <span class="hljs-comment">#&lt;==生成，这里有个问题，得重复按两下c才会出现[g]选项。</span></span><br>                                                     Page 1 of 1<br> CMAKE_BUILD_TYPE<br> CMAKE_INSTALL_PREFIX             /usr/local<br><br>CMAKE_BUILD_TYPE: Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel ...  <br>Keys: [enter] Edit an entry [d] Delete an entry <br>CMake Version 3.22.1<br>      [l] Show log output   [c] Configure       [g] Generate<br>      [h] Help              [q] Quit without generating<br>      [t] Toggle advanced mode (currently off)<br></code></pre></td></tr></table></figure>
+<p>注意这里，当点击<code>c</code>后会自动配置内容，但是并不会出现<code>[g]</code>选项。这时候需要重新使用<code>[c]</code>选项，然后<code>[e]</code>退出后就会出现<code>[g] Generate</code>选项。</p>
+<h2 id="cmake-gui的使用"><a href="#cmake-gui的使用" class="headerlink" title="cmake-gui的使用"></a>cmake-gui的使用</h2><p>这个是一个基于<code>QT</code>的<code>GUI</code>界面。在<code>Ubuntu</code>中安装如下：<code>sudo apt  install cmake-qt-gui</code>，使用的时候直接命令：<code>cmake-gui</code>提供一个<code>GUI</code>界面。点击操作就行。</p>
+<p><img src="/../../img/assets/cmake-compiler/Pasted%20image%2020230306111412.png" srcset="/img/loading.gif" lazyload alt="cmake-gui使用界面"></p>
+<h1 id="扩展内容"><a href="#扩展内容" class="headerlink" title="扩展内容"></a>扩展内容</h1><h2 id="静态链接库-动态链接库"><a href="#静态链接库-动态链接库" class="headerlink" title="静态链接库&amp;动态链接库"></a>静态链接库&amp;动态链接库</h2><p>在C&#x2F;C++中，项目最终都会分成两个部分内容，一个是<code>头文件( .h )</code>，一部分是<code>源文件( .cpp)</code> 。 如果要编写好的功能给其他程序使用，通常会把源文件打包形成一个<code>动态链接库文件(.so .a）</code>文件 。 值得注意的是，头文件一般不会打包到链接库中，因为头文件仅仅只是声明而已。而库是别人写好的现有的，成熟的，可以复用的代码。现实中每个程序都要依赖很多基础的底层库，不可能每个人的代码都从零开始，因此库的存在意义非同寻常。本质上来说库是一种可执行代码的二进制形式，可以被操作系统载入内存执行。库有两种：<code>静态库（.a、.lib）</code> 和 <code>动态库（.so、.dll）</code>链接库也增加了代码的重用性、提高编码的效率，也可看看成是对源码的一种保护。</p>
+<blockquote>
+<p>在<code>windows</code>上库名对应的是 <code>.lib</code>，<code>.dll</code>。而在<code>linux</code>上库对应的是 <code>.a</code>，<code>.so</code></p>
+</blockquote>
+<p>库包含<code>静态链接库</code>和<code>动态链接库</code>两种。</p>
+<h3 id="静态链接库"><a href="#静态链接库" class="headerlink" title="静态链接库"></a>静态链接库</h3><p>在链接阶段，将源文件中用到的库函数与汇编生成的<code>目标文件.o</code>合并生成可执行文件。该可执行文件可能会比较大。<br>这种链接方式的<strong>好处</strong>是：方便程序移植，因为可执行程序与库函数再无关系，放在如何环境当中都可以执行。<br><strong>缺点</strong>是：文件太大，一个全静态方式生成的简单print文件远大于动态链接生成的一样的可执行文件。（类似于一个是值传递，而另一个则是直接引用了地址而已，用的时候根据地址而加入该功能）。而且如果静态库liba.lib更新了，所以使用它的应用程序都需要重新编译、发布给用户。 </p>
+<blockquote>
+<p><code>linux</code>下的静态库文件是<code>.a</code>，而<code>windows</code>的静态库文件是<code>.lib</code></p>
+</blockquote>
+<h3 id="动态链接库"><a href="#动态链接库" class="headerlink" title="动态链接库"></a>动态链接库</h3><p>动态链接的基本思想是把程序按照模块拆分成各个相对独立部分，在程序运行时才将它们链接在一起形成一个完整的程序，而不是像静态链接一样把所有程序模块都链接成一个单独的可执行文件。也就是说程序在<strong>运行时</strong>由系统<strong>动态加载</strong>动态库到内存，供程序调用。 </p>
+<h3 id="如何导入库"><a href="#如何导入库" class="headerlink" title="如何导入库"></a>如何导入库</h3><p>导入依赖库，需要导入两个部分的内容：<strong>头文件</strong>和<strong>源文件</strong>。源文件一般已经被打成了<code>.so</code>文件，所以实际上就是导入<strong>头文件</strong>和导入<code>.so</code>文件。</p>
+<ol>
+<li>导入<strong>头文件</strong>：头文件一般会放置在一个文件夹<code>include</code>中，可以把这个文件夹拷贝到工程内部，也可以放置在外部磁盘上，只需要指定地址找到它即可。</li>
+<li>导入<strong>源文件</strong>(库文件)：如果只导入了头文件，而没有到实现文件，那么会抛出异常，比如：<strong>xxx未定义之类的错误</strong>。因此需要导入对应的源文件（一般是<code>.so</code>文件）</li>
+</ol>
+<p>库文件在链接（静态库和共享库）和运行（仅限于使用共享库的程序）时被使用，其搜索路径是在系统中进行设置的。<strong>一般 <code>Linux</code> 系统把<code>/lib</code>和<code>/usr/lib</code>两个目录作为默认的库搜索路径，所以使用这两个目录中的库时不需要进行设置搜索路径即可直接使用</strong>。但是，对于处于默认库搜索路径之外的库，就需要将库的位置添加到库的搜索路径之中。</p>
+<p>可以将头文件路径和库文件路径添加到指定的系统环境变量中去，具体如下：</p>
+<ol>
+<li>使用<code>gcc</code>编译时将<code>头文件</code>路径添加到<code>C_INCLUDE_PATH</code>系统环境变量中；</li>
+<li>使用<code>g++</code>编译时将<code>头文件</code>路径添加到<code>CPLUS_INCLUDE_PATH</code>系统环境变量中；</li>
+<li>将<code>动态连接库</code>路径添加到<code>LD_LIBRARY_PATH</code>系统环境变量中；</li>
+<li>将<code>静态库</code>路径添加到<code>LIBRARY_PATH</code>系统变量中。</li>
+</ol>
+<div class="note note-success">
+            <p>改变系统变量主要有两种形式，一种是临时改变，另一种是永久改变。临时改变系统变量只需要使用<code>export</code>命令，重启终端后将恢复至先前状态，如<code>export C_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:/myinclude</code>（在原有基础上添加了<code>/myinclude</code>目录），而永久改变主要是将<code>export</code>命令写到系统文件中：如<code>/etc/profile</code>、<code>/etc/export</code>、<code>~/.bashrc</code>或者<code>~/.bash_profile</code>等等。</p><p><code>~/.bashrc</code>在每次登陆和每次打开<code>shell</code>都读取一次，而<code>~/.bash_profile</code>只在登陆时读取一次。但是对于嵌入式Linux来说，有些文件可能没有，这就需要根据目标机器的情况来设置了。<br>对于<code>/etc/profile</code>、<code>/etc/export</code>文件中加入<code>export</code>命令，是对所有用户而言的，而<code>~/.bashrc</code>和<code>~/.bash_profile</code>是对当前用户起作用。</p>
+          </div>
+
+<h2 id="Linux中的交叉编译"><a href="#Linux中的交叉编译" class="headerlink" title="Linux中的交叉编译"></a>Linux中的交叉编译</h2><p>就是说，假如我有个开发板，但是开发板上的资源很少（内存和存储空间），如果在开发板上又编译又链接又安装的，所需要的资源是很多的（编译过程产生的中间数据），因此，考虑使用一台单独电脑去编译和链接其源程序，然后将编译好的程序交给开发板，这样就可以减少开发板上编译链接所产生的数据。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/" class="category-chain-item">技术栈</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/Linux/" class="category-chain-item">Linux</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Linux/" class="print-no-link">#Linux</a>
+      
+        <a href="/tags/gcc/" class="print-no-link">#gcc</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>编译初探究之gcc&amp;make&amp;cmake</div>
+      <div>https://tzhelloworld.top/cmake-compiler.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Tang Zhen</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2025年7月2日</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>更新于</div>
+          <div>2025年8月20日</div>
+        </div>
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="NC - 非商业性使用">
+                    <i class="iconfont icon-cc-nc"></i>
+                  </span>
+                </a>
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="SA - 相同方式共享">
+                    <i class="iconfont icon-cc-sa"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/mountains.html" title="山不见我, 我自去见山">
+                        <span class="hidden-mobile">山不见我, 我自去见山</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"pGOGT810g08Vym77Q7dyHIMa-MdYXbMMI","appKey":"zrQsxe52zK87DkQmLq0LJL4D","path":"window.location.pathname","placeholder":"o(≧∀≦)o  来啊，快活啊! （国内ip，无法评论~） ","avatar":"mp","meta":["nick","mail","link"],"requiredFields":[],"pageSize":20,"lang":"zh-CN","highlight":false,"recordIP":true,"serverURLs":"https://pgogt810.api.lncldglobal.com","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+  
+<script src="/js/tabs.js"></script>
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
