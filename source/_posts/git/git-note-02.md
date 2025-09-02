@@ -139,6 +139,30 @@ git diff HEAD      # 同时查看其他两个区和 Git 仓库的差异
 ```bash
 git log
 
+
+# 查看文件的提交历史
+git log -- <file-path>
+
+# 单行简洁模式
+git log --oneline -- <file-path>
+
+# 图形化展示 ：
+git log --graph --oneline --all -- <file-path>
+
+# 查看不同分支某个文件的差异
+git diff <branch1> <branch2> -- <file-path>
+
+
+# 查看文件的详细修改内容
+git log -p <file-path>
+
+# 查看文件的行级修改者（追溯每一行的最后修改人）
+git blame <file-path>
+
+# 查看文件修改统计信息
+git log --stat <file-path>
+
+
 # 除此之外，如果因为版本回退导致有些 commit hash 记录未被显示，可以使用
 git relog
 ```
@@ -295,6 +319,25 @@ git rebase master DEV
 - 将 `V2.1` 、`V2.2`提交记录文件修改的内容提交到 `master` 分支之后。
 
 > 其实，这里也需要考虑rebase之后的文件冲突问题。
+
+
+
+
+
+
+在执行 `git rebase` 后尝试 `git push` 遇到 `non-fast-forward` 拒绝，是因为 `rebase` 操作重写了提交历史 ，导致本地分支和远程分支的提交记录不兼容。`Git` 默认不允许强制覆盖远程分支（防止破坏他人工作），因此会拒绝 **非快进式** 的推送，即会提示:
+
+```bash
+To git@git.com:xxx-xx/xxx.git
+ ! [rejected]        dev/xxx -> dev/xxx (non-fast-forward)
+error: failed to push some refs to 'git@git.com:xxx-xx/xxx.git'
+hint: Updates were rejected because the tip of your current branch is behind
+hint: its remote counterpart. Integrate the remote changes (e.g.
+hint: 'git pull ...') before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+```
+最暴力的做法就是直接使用 `-f , --force` 强制推送覆盖远程分支历史记录，（会删除掉提交分支的提交历史，不确定会不会删除掉对应的`hash`提交。）如果想在分支上保留 `hash` 历史提交记录，可以考虑使用 `git cherry-pick`。同时配合过 `git log` 命令一起。
+
 
 
 ### git cherry-pick
