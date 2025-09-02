@@ -139,7 +139,7 @@ docker run -itd \
 # [可选] 进入容器，卸载并通过pip install -e重新安装sglang来调试修改代码
 pip uninstall sglang
 
-pip install -e "python[all]" -i https://pkgs.d.xiaomi.net/artifactory/api/pypi/pypi-virtual/simple
+pip install -e "python[all]" -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # 验证
 python3 -m sglang.launch_server --help
