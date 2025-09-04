@@ -28,178 +28,277 @@ sticky:
 
 ## nvidia-smi
 
-所有的使用可通过 `nvidia-smi -h` 查看帮助：
+### 常用命令
+
+所有的使用可通过 `nvidia-smi -h` 查看帮助，这里介绍一些比较常用命令：
 ```bash
-命令	功能说明	输出内容
-
 # 基础信息查询命令
-
-nvidia-smi	显示GPU总览信息	GPU列表、温度、功耗、内存使用
-nvidia-smi -L	列出所有GPU设备	GPU UUID和名称列表
-nvidia-smi -h	显示帮助信息	所有可用命令选项
-nvidia-smi -i 0	查询指定GPU信息	单个GPU详细状态
-nvidia-smi -q	查询详细GPU信息	完整GPU配置和状态
-
+nvidia-smi        # 显示GPU总览信息，如GPU列表、温度、功耗、内存使用信息
+nvidia-smi -L     # 列出所有GPU设备，如 GPU UUID和名称列表
+nvidia-smi -h     # 显示帮助信息，包含所有可用命令选项
+nvidia-smi -i 0   # 查询指定GPU信息，显示查询的单个GPU详细状态
+nvidia-smi -q     # 查询详细GPU信息，包含完整GPU配置和状态
 
 # 实时监控命令
-nvidia-smi -l 1	每秒循环显示信息	-l [秒数]：循环间隔
-nvidia-smi dmon	设备监控模式	简洁格式实时数据
-nvidia-smi dmon -s pucvmet	指定监控指标	p:功耗 u:利用率 c:时钟 v:温度 m:内存 e:编码器 t:时间
-nvidia-smi dmon -c 100	限制监控次数	-c [次数]：监控100次后退出
-nvidia-smi dmon -s p -c 60 -d	带日期的功耗监控	-d：添加日期前缀
+nvidia-smi -l 1             # -l [秒数]：循环间隔，这里表示每秒循环显示信息。
+nvidia-smi dmon             # 以简洁格式实时显示设备监控模式数据
+nvidia-smi dmon -s pucvmet  # 指定监控指标	p:功耗 u:利用率 c:时钟 v:温度 m:内存 e:编码器 t:时间
+nvidia-smi dmon -c 100      # -c [次数]：指定限制监控的次数，这里设置监控 100 次后退出
 
 # 详细查询命令
-nvidia-smi -q -d MEMORY	查询内存详细信息	内存使用、BAR1、ECC状态
-nvidia-smi -q -d PERFORMANCE	查询性能状态	P-State、时钟频率、性能模式
-nvidia-smi -q -d SUPPORTED_CLOCKS	查询支持的时钟频率	所有可用时钟设置
-nvidia-smi -q -d POWER	查询功耗详细信息	功耗限制、当前功耗、电压
-nvidia-smi -q -d CLOCK	查询当前时钟信息	GPU、内存、视频时钟频率
+nvidia-smi -q -d MEMORY       # 查询内存详细信息，如内存使用、BAR1、ECC状态
+nvidia-smi -q -d PERFORMANCE  # 查询性能状，如P-State、时钟频率、性能模式
+nvidia-smi -q -d SUPPORTED_CLOCKS   # 查询支持的时钟频率，返回所有可用时钟设置
+nvidia-smi -q -d POWER        # 查询功耗详细信息	功耗限制、当前功耗、电压
+nvidia-smi -q -d CLOCK        # 查询当前时钟信息	GPU、内存、视频时钟频率
 
 # 拓扑和连接命令
-nvidia-smi topo -m	显示GPU拓扑矩阵	GPU间连接关系和NUMA亲和性
-nvidia-smi topo -p	显示PCIe拓扑	仅PCIe连接（排除NVLink）
-nvidia-smi nvlink --status	NVLink状态查询	NVLink连接状态和错误
-nvidia-smi nvlink -i 0 --status	指定GPU的NVLink状态	单GPU所有NVLink状态
-nvidia-smi nvlink -i 0 -l 0 --status	指定NVLink通道状态	特定通道详细状态
+nvidia-smi topo --help  # 显示帮助
+nvidia-smi topo -m      # 显示GPU拓扑矩阵，包括GPU间连接关系和NUMA亲和性（这个NUMA是CPU相关的）
+nvidia-smi topo -p      # 显示PCIe拓扑	仅PCIe连接（排除NVLink）
+nvidia-smi nvlink --status      # NVLink状态查询，包括NVLink连接状态和错误
+nvidia-smi nvlink -i 0 --status # 指定GPU的NVLink状态，显示单GPU所有NVLink状态
+nvidia-smi nvlink -i 0 -l 0 --status  # 指定NVLink通道状态，只显示特定通道详细状态
 
 # 进程和应用监控命令
-
-nvidia-smi pmon	进程监控模式	各进程GPU使用情况	多进程GPU资源分析
-nvidia-smi pmon -c 50	限制进程监控次数	监控50次进程状态	定期进程检查
-nvidia-smi --query-compute-apps=pid,process_name,gpu_uuid,gpu_name,used_memory --format=csv	查询计算应用详情	CSV格式的应用信息	自动化脚本和报告
-nvidia-smi --query-accounted-apps=pid,gpu_util,mem_util,max_memory_usage,time --format=csv	查询应用账户信息	应用资源使用统计	资源使用审计
-
+nvidia-smi pmon --help  # 显示进程监控模式下的设置帮助
+nvidia-smi pmon         # 进程监控模式，用于显示各进程GPU使用情况，对多进程GPU资源分析
+nvidia-smi pmon -c 50   # 限制进程监控次数，这里设置监控50次进程状态
+nvidia-smi --help-query-compute-apps # 查询--query-compute-apps的有效属性显示
+nvidia-smi --query-compute-apps=pid,process_name,gpu_uuid,gpu_name,used_memory --format=csv # 查询计算应用详情,并以CSV格式的应用信息	自动化脚本和报告
+nvidia-smi --help-query-accounted-apps # 查询--query-accounted-apps的有效属性显示
+nvidia-smi --query-accounted-apps=pid,gpu_util,mem_util,max_memory_usage,time --format=csv  # 查询应用账户信息，包括应用资源使用的统计	
 
 # 自定义查询命令
-nvidia-smi --query-gpu=gpu_name,driver_version,memory.total,memory.used --format=csv	自定义GPU信息查询	CSV格式输出	自动化监控和报表
-nvidia-smi --query-gpu=temperature.gpu,power.draw,utilization.gpu,utilization.memory --format=csv,noheader,nounits	纯数值输出	无表头无单位的数值	数据采集和处理
-nvidia-smi --query-gpu=clocks.current.graphics,clocks.current.sm,clocks.current.memory,clocks.current.video --format=csv	时钟频率查询	各种时钟频率信息	性能状态监控
-nvidia-smi --query-gpu=ecc.errors.corrected.total,ecc.errors.uncorrected.total --format=csv	ECC错误查询	内存错误统计	硬件可靠性监控
-
+nvidia-smi --help-query-gpu # 查询自定义查询命令nvidia-smi --query-gpu=支持的属性 
+nvidia-smi --query-gpu=gpu_name,driver_version,memory.total,memory.used --format=csv  # 自定义GPU信息查询，以CSV格式输出
+nvidia-smi --query-gpu=temperature.gpu,power.draw,utilization.gpu,utilization.memory --format=csv,noheader,nounits  # 纯数值输出	无表头无单位的数值
+nvidia-smi --query-gpu=clocks.current.graphics,clocks.current.sm,clocks.current.memory,clocks.current.video --format=csv  # 时钟频率查询，显示各种时钟频率信息，可用于性能状态监控
 ```
+### 命令详解
 
-监控脚本
 ```bash
-#!/bin/bash# 企业级GPU监控脚本# 功能：全面监控、日志记录、告警通知
-LOG_DIR="/var/log/gpu-monitoring"
-ALERT_TEMP=85
-ALERT_POWER=300
-ALERT_MEMORY=90
+> nvidia-smi
 
-mkdir -p $LOG_DIR# 综合监控函数monitor_gpu() {local gpu_id=$1local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-    # 获取详细GPU信息local gpu_info=$(nvidia-smi -i $gpu_id --query-gpu=\
-name,temperature.gpu,power.draw,utilization.gpu,utilization.memory,\
-memory.used,memory.total,clocks.current.graphics,clocks.current.memory,\
-fan.speed,pstate,clocks.throttle_reasons.active \
---format=csv,noheader,nounits)
-    # 记录到日志echo "$timestamp,GPU$gpu_id,$gpu_info" >> "$LOG_DIR/gpu_${gpu_id}_detailed.log"# 解析并检查告警条件
-    IFS=',' read -ra VALUES <<< "$gpu_info"local temp=${VALUES[1]}local power=${VALUES[2]}local mem_used=${VALUES[5]}local mem_total=${VALUES[6]}local throttle=${VALUES[11]}# 计算内存使用率if [[ $mem_used != "[Not Supported]" && $mem_total != "[Not Supported]" ]]; thenlocal mem_percent=$((mem_used * 100 / mem_total))
-        # 内存告警if [[ $mem_percent -gt $ALERT_MEMORY ]]; thenecho "ALERT: GPU$gpu_id Memory usage ${mem_percent}% exceeds threshold" | \tee -a "$LOG_DIR/alerts.log"fifi# 温度告警if [[ $temp != "[Not Supported]" && $temp -gt $ALERT_TEMP ]]; thenecho "ALERT: GPU$gpu_id Temperature ${temp}°C exceeds threshold" | \tee -a "$LOG_DIR/alerts.log"fi# 功耗告警if [[ $power != "[Not Supported]" && ${power%.*} -gt $ALERT_POWER ]]; thenecho "ALERT: GPU$gpu_id Power ${power}W exceeds threshold" | \tee -a "$LOG_DIR/alerts.log"fi# 节流告警if [[ $throttle == "Active" ]]; thenecho "ALERT: GPU$gpu_id Throttling active" | \tee -a "$LOG_DIR/alerts.log"fi
-}
++---------------------------------------------------------------------------------------+
+| NVIDIA-SMI 535.104.05             Driver Version: 535.104.05   CUDA Version: 12.2     |
+|-----------------------------------------+----------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |         Memory-Usage | GPU-Util  Compute M. |
+|                                         |                      |               MIG M. |
+|=========================================+======================+======================|
+|   0  NVIDIA A800-SXM4-80GB          Off | 00000000:10:00.0 Off |                    0 |
+| N/A   30C    P0              56W / 400W |      2MiB / 81920MiB |      0%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+|   1  NVIDIA A800-SXM4-80GB          Off | 00000000:16:00.0 Off |                    0 |
+| N/A   29C    P0              55W / 400W |      2MiB / 81920MiB |      0%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+|   2  NVIDIA A800-SXM4-80GB          Off | 00000000:47:00.0 Off |                    0 |
+| N/A   29C    P0              54W / 400W |      2MiB / 81920MiB |      0%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+|   3  NVIDIA A800-SXM4-80GB          Off | 00000000:4B:00.0 Off |                    0 |
+| N/A   30C    P0              57W / 400W |      2MiB / 81920MiB |      0%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+|   4  NVIDIA A800-SXM4-80GB          Off | 00000000:8A:00.0 Off |                    0 |
+| N/A   29C    P0              55W / 400W |      2MiB / 81920MiB |      0%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+|   5  NVIDIA A800-SXM4-80GB          Off | 00000000:8F:00.0 Off |                    0 |
+| N/A   29C    P0              54W / 400W |      2MiB / 81920MiB |      0%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+|   6  NVIDIA A800-SXM4-80GB          Off | 00000000:C6:00.0 Off |                    0 |
+| N/A   28C    P0              55W / 400W |      2MiB / 81920MiB |      0%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+|   7  NVIDIA A800-SXM4-80GB          Off | 00000000:CA:00.0 Off |                    0 |
+| N/A   30C    P0              54W / 400W |      2MiB / 81920MiB |      0%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
 
-# 系统拓扑分析analyze_topology() {echo "=== GPU拓扑分析 ===" > "$LOG_DIR/topology_report.txt"
-    nvidia-smi topo -m >> "$LOG_DIR/topology_report.txt"echo -e "\n=== NVLink状态 ===" >> "$LOG_DIR/topology_report.txt"
-    nvidia-smi nvlink --status >> "$LOG_DIR/topology_report.txt"echo -e "\n=== PCIe信息 ===" >> "$LOG_DIR/topology_report.txt"
-    nvidia-smi --query-gpu=pci.bus_id,pci.domain,pci.bus,pci.device_id,pci.sub_device_id \
-    --format=csv >> "$LOG_DIR/topology_report.txt"
-}
-
-# 性能基准报告performance_baseline() {local output_file="$LOG_DIR/performance_baseline_$(date +%Y%m%d_%H%M%S).txt"echo "=== GPU性能基准报告 ===" > "$output_file"echo "测试时间: $(date)" >> "$output_file"# 支持的时钟频率echo -e "\n=== 支持的时钟频率 ===" >> "$output_file"
-    nvidia-smi -q -d SUPPORTED_CLOCKS >> "$output_file"# 当前性能状态echo -e "\n=== 当前性能状态 ===" >> "$output_file"
-    nvidia-smi -q -d PERFORMANCE >> "$output_file"# ECC状态echo -e "\n=== ECC状态 ===" >> "$output_file"
-    nvidia-smi -q -d ECC >> "$output_file"# 详细配置echo -e "\n=== 详细GPU配置 ===" >> "$output_file"
-    nvidia-smi -q >> "$output_file"
-}
-
-# 主监控循环main() {echo "开始GPU监控 - $(date)"# 获取GPU数量local gpu_count=$(nvidia-smi -L | wc -l)
-    # 生成系统报告（首次运行）if [[ ! -f "$LOG_DIR/topology_report.txt" ]]; then
-        analyze_topology
-        performance_baselinefi# 持续监控while true; dofor ((i=0; i<gpu_count; i++)); do
-            monitor_gpu $idonesleep 60  # 每分钟采集一次done
-}
-
-# 脚本参数处理case "$1" in"monitor")
-        main
-        ;;"topology")
-        analyze_topology
-        ;;"baseline")
-        performance_baseline
-        ;;"alert-test")# 测试告警功能
-        ALERT_TEMP=0 ALERT_POWER=0 ALERT_MEMORY=0
-        monitor_gpu 0
-        ;;
-    *)echo "用法: $0 {monitor|topology|baseline|alert-test}"echo "  monitor    - 开始持续监控"echo "  topology   - 生成拓扑报告"echo "  baseline   - 生成性能基准报告"echo "  alert-test - 测试告警功能"exit 1
-        ;;
-esac
++---------------------------------------------------------------------------------------+
+| Processes:                                                                            |
+|  GPU   GI   CI        PID   Type   Process name                            GPU Memory |
+|        ID   ID                                                             Usage      |
+|=======================================================================================|
+|  No running processes found                                                           |
++---------------------------------------------------------------------------------------+
 ```
+
+
 ```bash
-# 1. GPU健康检查脚本#!/bin/bash# gpu_health_check.shcheck_gpu_health() {echo "=== GPU健康检查报告 ==="echo "检查时间: $(date)"# ECC错误检查echo -e "\n1. ECC错误统计:"
-    nvidia-smi --query-gpu=index,ecc.errors.corrected.total,ecc.errors.uncorrected.total \
-    --format=csv
-    # 温度状态echo -e "\n2. 温度状态:"
-    nvidia-smi --query-gpu=index,temperature.gpu,temperature.memory,fan.speed \
-    --format=csv
-    # 节流状态echo -e "\n3. 节流状态检查:"
-    nvidia-smi --query-gpu=index,clocks.throttle_reasons.active,clocks.throttle_reasons.hw_thermal_slowdown \
-    --format=csv
-    # 功耗状态echo -e "\n4. 功耗状态:"
-    nvidia-smi --query-gpu=index,power.draw,power.limit,power.default_limit \
-    --format=csv
-    # 进程占用echo -e "\n5. 进程占用情况:"
-    nvidia-smi pmon -c 1
-}
+# 查看GPU网络拓扑
+> nvidia-smi topo -mp
 
-# 2. 多GPU训练监控脚本
-#!/bin/bash
-# multi_gpu_training_monitor.shmonitor_training() {local log_file="training_monitor_$(date +%Y%m%d_%H%M%S).csv"local duration=${1:-3600}  # 默认监控1小时local interval=${2:-5}     # 默认5秒间隔echo "timestamp,gpu_id,util_gpu,util_mem,temp,power,mem_used,mem_total,sm_clock,mem_clock" > $log_filelocal end_time=$(($(date +%s) + duration))
-    while [[ $(date +%s) -lt $end_time ]]; dolocal timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-        # 获取每个GPU的状态
-        nvidia-smi --query-gpu=index,utilization.gpu,utilization.memory,temperature.gpu,power.draw,memory.used,memory.total,clocks.current.sm,clocks.current.memory \
-        --format=csv,noheader,nounits | while IFS=',' read -r gpu_id util_gpu util_mem temp power mem_used mem_total sm_clock mem_clock; doecho "$timestamp,$gpu_id,$util_gpu,$util_mem,$temp,$power,$mem_used,$mem_total,$sm_clock,$mem_clock" >> $log_filedonesleep $intervaldoneecho "监控完成，日志保存在: $log_file"# 生成简单的统计报告echo -e "\n=== 监控统计报告 ==="echo "平均GPU利用率:"tail -n +2 $log_file | awk -F',' '{sum+=$3; count++} END {print sum/count "%"}'echo "平均温度:"tail -n +2 $log_file | awk -F',' '{sum+=$5; count++} END {print sum/count "°C"}'echo "平均功耗:"tail -n +2 $log_file | awk -F',' '{sum+=$6; count++} END {print sum/count "W"}'
-}
+        GPU0    GPU1    GPU2    GPU3    GPU4    GPU5    GPU6    GPU7    NIC0    NIC1    NIC2    NIC3    NIC4    NIC5    CPU Affinity    NUMA Affinity   GPU NUMA ID
+GPU0     X      PXB     NODE    NODE    SYS     SYS     SYS     SYS     PXB     NODE    NODE    NODE    SYS     SYS     0-31,64-95      0               N/A
+GPU1    PXB      X      NODE    NODE    SYS     SYS     SYS     SYS     PXB     NODE    NODE    NODE    SYS     SYS     0-31,64-95      0               N/A
+GPU2    NODE    NODE     X      PXB     SYS     SYS     SYS     SYS     NODE    PXB     PXB     PXB     SYS     SYS     0-31,64-95      0               N/A
+GPU3    NODE    NODE    PXB      X      SYS     SYS     SYS     SYS     NODE    PXB     PXB     PXB     SYS     SYS     0-31,64-95      0               N/A
+GPU4    SYS     SYS     SYS     SYS      X      PXB     NODE    NODE    SYS     SYS     SYS     SYS     PXB     NODE    32-63,96-127    1               N/A
+GPU5    SYS     SYS     SYS     SYS     PXB      X      NODE    NODE    SYS     SYS     SYS     SYS     PXB     NODE    32-63,96-127    1               N/A
+GPU6    SYS     SYS     SYS     SYS     NODE    NODE     X      PXB     SYS     SYS     SYS     SYS     NODE    PXB     32-63,96-127    1               N/A
+GPU7    SYS     SYS     SYS     SYS     NODE    NODE    PXB      X      SYS     SYS     SYS     SYS     NODE    PXB     32-63,96-127    1               N/A
+NIC0    PXB     PXB     NODE    NODE    SYS     SYS     SYS     SYS      X      NODE    NODE    NODE    SYS     SYS
+NIC1    NODE    NODE    PXB     PXB     SYS     SYS     SYS     SYS     NODE     X      PIX     PIX     SYS     SYS
+NIC2    NODE    NODE    PXB     PXB     SYS     SYS     SYS     SYS     NODE    PIX      X      PIX     SYS     SYS
+NIC3    NODE    NODE    PXB     PXB     SYS     SYS     SYS     SYS     NODE    PIX     PIX      X      SYS     SYS
+NIC4    SYS     SYS     SYS     SYS     PXB     PXB     NODE    NODE    SYS     SYS     SYS     SYS      X      NODE
+NIC5    SYS     SYS     SYS     SYS     NODE    NODE    PXB     PXB     SYS     SYS     SYS     SYS     NODE     X
 
-# 3. 性能压测脚本#!/bin/bash# gpu_stress_test.shstress_test() {echo "=== GPU压力测试 ==="# 测试前状态echo "测试前状态:"
-    nvidia-smi --query-gpu=index,temperature.gpu,power.draw,clocks.current.graphics,clocks.current.memory \
-    --format=csv
-    # 启动监控（后台）
-    nvidia-smi dmon -s pucvmet -d > stress_test_monitor.csv &local monitor_pid=$!
-    echo "开始压力测试（持续5分钟）..."# 这里应该启动你的压力测试程序# 例如：CUDA示例程序或深度学习训练任务sleep 300  # 模拟5分钟测试# 停止监控kill $monitor_pid 2>/dev/null
-    # 测试后状态echo -e "\n测试后状态:"
-    nvidia-smi --query-gpu=index,temperature.gpu,power.draw,clocks.current.graphics,clocks.current.memory \
-    --format=csv
-    # 检查是否有节流echo -e "\n节流检查:"
-    nvidia-smi --query-gpu=index,clocks.throttle_reasons.active --format=csv
-    echo "监控数据保存在: stress_test_monitor.csv"
-}
+Legend:
 
-# 4. 定时任务监控脚本#!/bin/bash# cron_gpu_monitor.sh (用于cron定时任务)# 使用方法: */5 * * * * /path/to/cron_gpu_monitor.sh
-LOG_FILE="/var/log/gpu_status.log"
-ALERT_FILE="/var/log/gpu_alerts.log"# 获取当前状态
-current_status=$(nvidia-smi --query-gpu=index,name,temperature.gpu,power.draw,utilization.gpu,memory.used,memory.total \
---format=csv,noheader)
+  X    = Self
+  SYS  = Connection traversing PCIe as well as the SMP interconnect between NUMA nodes (e.g., QPI/UPI)
+  NODE = Connection traversing PCIe as well as the interconnect between PCIe Host Bridges within a NUMA node
+  PHB  = Connection traversing PCIe as well as a PCIe Host Bridge (typically the CPU)
+  PXB  = Connection traversing multiple PCIe bridges (without traversing the PCIe Host Bridge)
+  PIX  = Connection traversing at most a single PCIe bridge
 
-# 记录到日志echo "$(date '+%Y-%m-%d %H:%M:%S'),$current_status" >> $LOG_FILE# 检查告警条件echo "$current_status" | while IFS=',' read -r index name temp power util mem_used mem_total; do# 温度告警if [[ $temp -gt 85 ]]; thenecho "$(date '+%Y-%m-%d %H:%M:%S'): GPU$index 温度过高: ${temp}°C" >> $ALERT_FILEfi# 内存告警if [[ $mem_used != "[Not Supported]" && $mem_total != "[Not Supported]" ]]; then
-        mem_percent=$((mem_used * 100 / mem_total))if [[ $mem_percent -gt 90 ]]; thenecho "$(date '+%Y-%m-%d %H:%M:%S'): GPU$index 内存使用率过高: ${mem_percent}%" >> $ALERT_FILEfifidone# 保持日志文件大小（只保留最近1000行）tail -n 1000 $LOG_FILE > ${LOG_FILE}.tmp && mv ${LOG_FILE}.tmp $LOG_FILEtail -n 1000 $ALERT_FILE > ${ALERT_FILE}.tmp && mv ${ALERT_FILE}.tmp $ALERT_FILE 2>/dev/null
+NIC Legend:
+
+  NIC0: mlx5_0
+  NIC1: mlx5_1
+  NIC2: mlx5_2
+  NIC3: mlx5_3
+  NIC4: mlx5_4
+  NIC5: mlx5_5
+
+# 检查Mellanox网卡是否安装和版本
+> lspci | grep Mellanox
+
+1d:00.0 Infiniband controller: Mellanox Technologies MT28908 Family [ConnectX-6]
+5d:00.0 Infiniband controller: Mellanox Technologies MT28908 Family [ConnectX-6]
+5e:00.0 Ethernet controller: Mellanox Technologies MT27800 Family [ConnectX-5]
+5e:00.1 Ethernet controller: Mellanox Technologies MT27800 Family [ConnectX-5]
+96:00.0 Infiniband controller: Mellanox Technologies MT28908 Family [ConnectX-6]
+cd:00.0 Infiniband controller: Mellanox Technologies MT28908 Family [ConnectX-6]
+
+# 查看网口映射关系
+> ibdev2netdev
+
+mlx5_0 port 1 ==> ib0 (Down)
+mlx5_1 port 1 ==> ib1 (Down)
+mlx5_2 port 1 ==> eth0 (Up)
+mlx5_3 port 1 ==> eth1 (Down)
+mlx5_4 port 1 ==> ib2 (Down)
+mlx5_5 port 1 ==> ib3 (Down)
+
+
+> ibstat
+
+CA 'mlx5_0'
+        CA type: MT4123
+        Number of ports: 1
+        Firmware version: 20.35.3006
+        Hardware version: 0
+        Node GUID: 0x946dae0300d52e8a
+        System image GUID: 0x946dae0300d52e8a
+        Port 1:
+                State: Active
+                Physical state: LinkUp
+                Rate: 200
+                Base lid: 283
+                LMC: 0
+                SM lid: 1
+                Capability mask: 0xa651e848
+                Port GUID: 0x946dae0300d52e8a
+                Link layer: InfiniBand
+CA 'mlx5_1'
+        CA type: MT4123
+        Number of ports: 1
+        Firmware version: 20.35.3006
+        Hardware version: 0
+        Node GUID: 0x946dae0300d51eda
+        System image GUID: 0x946dae0300d51eda
+        Port 1:
+                State: Active
+                Physical state: LinkUp
+                Rate: 200
+                Base lid: 282
+                LMC: 0
+                SM lid: 1
+                Capability mask: 0xa651e848
+                Port GUID: 0x946dae0300d51eda
+                Link layer: InfiniBand
+CA 'mlx5_2'
+        CA type: MT4119
+        Number of ports: 1
+        Firmware version: 16.32.1010
+        Hardware version: 0
+        Node GUID: 0xe8ebd3030073d504
+        System image GUID: 0xe8ebd3030073d504
+        Port 1:
+                State: Active
+                Physical state: LinkUp
+                Rate: 25
+                Base lid: 0
+                LMC: 0
+                SM lid: 0
+                Capability mask: 0x00010000
+                Port GUID: 0xeaebd3fffe73d504
+                Link layer: Ethernet
+CA 'mlx5_3'
+        CA type: MT4119
+        Number of ports: 1
+        Firmware version: 16.32.1010
+        Hardware version: 0
+        Node GUID: 0xe8ebd3030073d505
+        System image GUID: 0xe8ebd3030073d504
+        Port 1:
+                State: Down
+                Physical state: Disabled
+                Rate: 40
+                Base lid: 0
+                LMC: 0
+                SM lid: 0
+                Capability mask: 0x00010000
+                Port GUID: 0xeaebd3fffe73d505
+                Link layer: Ethernet
+CA 'mlx5_4'
+        CA type: MT4123
+        Number of ports: 1
+        Firmware version: 20.35.3006
+        Hardware version: 0
+        Node GUID: 0x946dae0300d52f06
+        System image GUID: 0x946dae0300d52f06
+        Port 1:
+                State: Active
+                Physical state: LinkUp
+                Rate: 200
+                Base lid: 285
+                LMC: 0
+                SM lid: 1
+                Capability mask: 0xa651e848
+                Port GUID: 0x946dae0300d52f06
+                Link layer: InfiniBand
+CA 'mlx5_5'
+        CA type: MT4123
+        Number of ports: 1
+        Firmware version: 20.35.3006
+        Hardware version: 0
+        Node GUID: 0x946dae0300d539b2
+        System image GUID: 0x946dae0300d539b2
+        Port 1:
+                State: Active
+                Physical state: LinkUp
+                Rate: 200
+                Base lid: 284
+                LMC: 0
+                SM lid: 1
+                Capability mask: 0xa651e848
+                Port GUID: 0x946dae0300d539b2
+                Link layer: InfiniBand
+
 ```
 
-使用示例:
-```bash
-# 获取GPU信息
-python3 gpu_monitor.py --action info
-
-# 监控特定GPU
-python3 gpu_monitor.py --action info --gpu-id 0
-
-# 持续监控30分钟，每3秒采样一次
-python3 gpu_monitor.py --action monitor --duration 1800 --interval 3
-
-# 检查告警
-python3 gpu_monitor.py --action alert
-
-```
 
 
-nvidia-smi -q 是一个用于查询 NVIDIA GPU 详细信息的命令，它会输出 GPU 的全面状态信息，包括硬件状态、性能指标、内存使用情况等。
+
 
 
 ## dcgmi & DCGM Exporter
