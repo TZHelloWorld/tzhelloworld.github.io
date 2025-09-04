@@ -23,8 +23,8 @@ sticky:
 
 - [NVML](https://developer.nvidia.com/management-library-nvml)：这是一个基于 `C` 的编程接口，用于监控和管理数据中心 `GPU` 中的各种状态。这也是 `NVIDIA` 支持 `nvidia-smi` 工具的底层库，`nvidia-smi`命令会随着驱动的安装而存在。`NVML` 是线程安全的，因此可以多个线程同时对 `NVML` 进行调用。
 - [DCGM](https://developer.nvidia.com/dcgm)：`DCGM`是一套用于在集群环境中管理和监控数据中心的 `NVIDIA GPU` 工具，旨在管理和轻松监控数据中心 `GPU` 资源的运行状况、性能和利用率。
-  - 使用：首先在有 `NVIDIA GPU` 服务器的节点上安装 `DCGM`(核心是 `libdcgm.so` 库)，然后可通过 `HostEngine` 启动服务或将`HostEngine`作为嵌入式进程启动（`DCGM Exporter`容器中）。服务启动后，`DCGM` 提供两种用户交互的界面：`dcgmi`(命令行交互) 和 `DCGM Exporter`（为原生 `Kubernetes` 环境中的集群级监控定制）。
-  - 根据[How to get the module profile loaded? · Issue #132 · NVIDIA/DCGM](https://github.com/NVIDIA/DCGM/issues/132)提示：性能分析模块`DCGM` 中的 `Profiling` 模块对 `RTX/GTX GPU` 类卡并不支持，即在消费级显卡 `RTX 4090` 上一些指标数据无法通过 `DCGM Exporter`采集到（如 `sm issue` 通过 `DCGM Exporter` 无法采集到）。
+  - 使用：首先在有 `NVIDIA GPU` 服务器的节点上安装 `DCGM`(核心是 `libdcgm.so` 库)，然后可通过 `HostEngine` 启动服务或将`HostEngine`作为嵌入式进程启动（集成`libdcgm.so`库）。服务启动后，`DCGM` 提供两种用户交互的界面：`dcgmi`(命令行交互) 和 `DCGM Exporter`（为原生 `Kubernetes` 环境中的集群级监控定制）。
+  - 根据[How to get the module profile loaded? · Issue #132 · NVIDIA/DCGM](https://github.com/NVIDIA/DCGM/issues/132)提示：性能分析模块`DCGM` 中的 `Profiling` 模块对 `RTX/GTX GPU` 类卡并不支持，即在消费级显卡 `RTX 4090` 上一些指标数据无法通过 `DCGM Exporter`采集到（如 `SM issue` 无法通过 `DCGM` 采集到，但是可以通过 `NVML` 获取）。
 
 ## nvidia-smi
 
