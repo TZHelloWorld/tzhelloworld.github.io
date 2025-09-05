@@ -41,8 +41,10 @@ nvidia-smi -q     # 查询详细GPU信息，包含完整GPU配置和状态
 
 # 实时监控命令
 nvidia-smi -l 1             # -l [秒数]：循环间隔，这里表示每秒循环显示信息。
+nvidia-smi dmon --help      # 简洁模式下的配置说明
 nvidia-smi dmon             # 以简洁格式实时显示设备监控模式数据
-nvidia-smi dmon -s pucvmet  # 指定监控指标	p:功耗 u:利用率 c:时钟 v:温度 m:内存 e:编码器 t:时间
+nvidia-smi dmon -s pucvmet  # [-s | --select]，指定监控指标： p:功耗 u:利用率 c:时钟 v:温度 m:内存 e:编码器 t:时间1
+nvidia-smi dmon --gpm-metrics=2,3,4,5,10,11,12,13       # 这些数字可以通过 nvidia-smi dmon --help 查看
 nvidia-smi dmon -c 100      # -c [次数]：指定限制监控的次数，这里设置监控 100 次后退出
 
 # 详细查询命令
@@ -80,54 +82,140 @@ nvidia-smi --query-gpu=clocks.current.graphics,clocks.current.sm,clocks.current.
 ```bash
 > nvidia-smi
 
-+---------------------------------------------------------------------------------------+
-| NVIDIA-SMI 535.104.05             Driver Version: 535.104.05   CUDA Version: 12.2     |
-|-----------------------------------------+----------------------+----------------------+
-| GPU  Name                 Persistence-M | Bus-Id        Disp.A | Volatile Uncorr. ECC |
-| Fan  Temp   Perf          Pwr:Usage/Cap |         Memory-Usage | GPU-Util  Compute M. |
-|                                         |                      |               MIG M. |
-|=========================================+======================+======================|
-|   0  NVIDIA A800-SXM4-80GB          Off | 00000000:10:00.0 Off |                    0 |
-| N/A   30C    P0              56W / 400W |      2MiB / 81920MiB |      0%      Default |
-|                                         |                      |             Disabled |
-+-----------------------------------------+----------------------+----------------------+
-|   1  NVIDIA A800-SXM4-80GB          Off | 00000000:16:00.0 Off |                    0 |
-| N/A   29C    P0              55W / 400W |      2MiB / 81920MiB |      0%      Default |
-|                                         |                      |             Disabled |
-+-----------------------------------------+----------------------+----------------------+
-|   2  NVIDIA A800-SXM4-80GB          Off | 00000000:47:00.0 Off |                    0 |
-| N/A   29C    P0              54W / 400W |      2MiB / 81920MiB |      0%      Default |
-|                                         |                      |             Disabled |
-+-----------------------------------------+----------------------+----------------------+
-|   3  NVIDIA A800-SXM4-80GB          Off | 00000000:4B:00.0 Off |                    0 |
-| N/A   30C    P0              57W / 400W |      2MiB / 81920MiB |      0%      Default |
-|                                         |                      |             Disabled |
-+-----------------------------------------+----------------------+----------------------+
-|   4  NVIDIA A800-SXM4-80GB          Off | 00000000:8A:00.0 Off |                    0 |
-| N/A   29C    P0              55W / 400W |      2MiB / 81920MiB |      0%      Default |
-|                                         |                      |             Disabled |
-+-----------------------------------------+----------------------+----------------------+
-|   5  NVIDIA A800-SXM4-80GB          Off | 00000000:8F:00.0 Off |                    0 |
-| N/A   29C    P0              54W / 400W |      2MiB / 81920MiB |      0%      Default |
-|                                         |                      |             Disabled |
-+-----------------------------------------+----------------------+----------------------+
-|   6  NVIDIA A800-SXM4-80GB          Off | 00000000:C6:00.0 Off |                    0 |
-| N/A   28C    P0              55W / 400W |      2MiB / 81920MiB |      0%      Default |
-|                                         |                      |             Disabled |
-+-----------------------------------------+----------------------+----------------------+
-|   7  NVIDIA A800-SXM4-80GB          Off | 00000000:CA:00.0 Off |                    0 |
-| N/A   30C    P0              54W / 400W |      2MiB / 81920MiB |      0%      Default |
-|                                         |                      |             Disabled |
-+-----------------------------------------+----------------------+----------------------+
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 570.124.06             Driver Version: 570.124.06     CUDA Version: 12.8     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA H800                    On  |   00000000:63:00.0 Off |                    0 |
+| N/A   37C    P0            140W /  700W |   56073MiB /  81559MiB |     52%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   1  NVIDIA H800                    On  |   00000000:67:00.0 Off |                    0 |
+| N/A   40C    P0            138W /  700W |   56121MiB /  81559MiB |     64%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   2  NVIDIA H800                    On  |   00000000:6B:00.0 Off |                    0 |
+| N/A   42C    P0            152W /  700W |   56075MiB /  81559MiB |     45%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   3  NVIDIA H800                    On  |   00000000:6F:00.0 Off |                    0 |
+| N/A   37C    P0            144W /  700W |   56121MiB /  81559MiB |     58%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   4  NVIDIA H800                    On  |   00000000:A3:00.0 Off |                    0 |
+| N/A   38C    P0            152W /  700W |   56073MiB /  81559MiB |     36%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   5  NVIDIA H800                    On  |   00000000:A7:00.0 Off |                    0 |
+| N/A   44C    P0            154W /  700W |   56121MiB /  81559MiB |     62%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   6  NVIDIA H800                    On  |   00000000:AB:00.0 Off |                    0 |
+| N/A   43C    P0            158W /  700W |   56073MiB /  81559MiB |     53%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   7  NVIDIA H800                    On  |   00000000:AF:00.0 Off |                    0 |
+| N/A   38C    P0            153W /  700W |   56123MiB /  81559MiB |     46%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|    0   N/A  N/A             731      C   sglang::scheduler_DP0_TP0_EP0         56054MiB |
+|    1   N/A  N/A             732      C   sglang::scheduler_DP1_TP1_EP1         56102MiB |
+|    2   N/A  N/A             733      C   sglang::scheduler_DP2_TP2_EP2         56056MiB |
+|    3   N/A  N/A             734      C   sglang::scheduler_DP3_TP3_EP3         56102MiB |
+|    4   N/A  N/A             735      C   sglang::scheduler_DP4_TP4_EP4         56054MiB |
+|    5   N/A  N/A             736      C   sglang::scheduler_DP5_TP5_EP5         56102MiB |
+|    6   N/A  N/A             737      C   sglang::scheduler_DP6_TP6_EP6         56054MiB |
+|    7   N/A  N/A             738      C   sglang::scheduler_DP7_TP7_EP7         56104MiB |
++-----------------------------------------------------------------------------------------+
 
-+---------------------------------------------------------------------------------------+
-| Processes:                                                                            |
-|  GPU   GI   CI        PID   Type   Process name                            GPU Memory |
-|        ID   ID                                                             Usage      |
-|=======================================================================================|
-|  No running processes found                                                           |
-+---------------------------------------------------------------------------------------+
 ```
+
+```bash
+# 查询使用
+> nvidia-smi dmon --help
+
+    GPU statistics are displayed in scrolling format with one line
+    per sampling interval. Metrics to be monitored can be adjusted
+    based on the width of terminal window. Monitoring is limited to
+    a maximum of 4 devices. If no devices are specified, then up to
+    first 4 supported devices under natural enumeration (starting
+    with GPU index 0) are used for monitoring purpose.
+    It is supported on Tesla, GRID, Quadro and limited GeForce products
+    for Kepler or newer GPUs under x64 and ppc64 bare metal Linux.
+    Note: On MIG-enabled GPUs, querying the utilization of encoder,
+    decoder, jpeg, ofa, gpu, and memory is not currently supported.
+
+    Usage: nvidia-smi dmon [options]
+
+    Options include:
+    [-i | --id]:          Comma separated Enumeration index, PCI bus ID or UUID
+    [-d | --delay]:       Collection delay/interval in seconds [default=1sec]
+    [-c | --count]:       Collect specified number of samples and exit
+    [-s | --select]:      One or more metrics [default=puc]
+                          Can be any of the following:
+                              p - Power Usage and Temperature
+                              u - Utilization
+                              c - Proc and Mem Clocks
+                              v - Power and Thermal Violations
+                              m - FB and Bar1 Memory
+                              e - ECC Errors and PCIe Replay errors
+                              t - PCIe Rx and Tx Throughput
+    [N/A | --gpm-metrics]: Comma-separated list of GPM metrics to watch
+                           Available metrics:
+                               Graphics Activity    = 1
+                               SM Activity          = 2
+                               SM Occupancy         = 3
+                               Integer Activity     = 4
+                               Tensor Activity      = 5
+                               DFMA Tensor Activity = 6
+                               HMMA Tensor Activity = 7
+                               IMMA Tensor Activity = 9
+                               DRAM Activity        = 10
+                               FP64 Activity        = 11
+                               FP32 Activity        = 12
+                               FP16 Activity        = 13
+                               PCIe TX              = 20
+                               PCIe RX              = 21
+                               NVDEC 0-7 Activity   = 30-37
+                               NVJPG 0-7 Activity   = 40-47
+                               NVOFA 0 Activity     = 50
+                               NVLink Total RX      = 60
+                               NVLink Total TX      = 61
+                               NVLink L0-17 RX      = 62, 64, 66, ..., 96
+                               NVLink L0-17 TX      = 63, 65, 67, ..., 97
+
+    [-o | --options]:     One or more from the following:
+                              D - Include Date (YYYYMMDD) in scrolling output
+                              T - Include Time (HH:MM:SS) in scrolling output
+    [-f | --filename]:    Log to a specified file, rather than to stdout
+    [-h | --help]:        Display help information
+
+
+# 查询 Graphics Activity（1）、SM Activity（2）、SM Occupancy（3）、 Integer Activity（4）、Tensor Activity（5）、DRAM Activity（10）、FP64 Activity（11）、FP32 Activity（12）、FP16 Activity（13）、PCIe TX（20）、PCIe RX（21）、NVLink Total RX（60）、NVLink Total TX（61） 数据
+> nvidia-smi dmon --gpm-metrics=1,2,3,4,5,10,11,12,13,20,21,60,61
+
+# gpu    pwr  gtemp  mtemp     sm    mem    enc    dec    jpg    ofa   mclk   pclk      gract    smutil     smocc   intutil    mmaact      dram      fp64      fp32      fp16     pcitx     pcirx     nvlrx     nvltx
+# Idx      W      C      C      %      %      %      %      %      %    MHz    MHz      GPM:%     GPM:%     GPM:%     GPM:%     GPM:%     GPM:%     GPM:%     GPM:%     GPM:% GPM:MiB/s GPM:MiB/s GPM:MiB/s GPM:MiB/s
+    0     56     30     28      0      0      0      0      0      0   1593    210          -         -         -         -         -         -         -         -         -         -         -         -         -
+    1     55     29     27      0      0      0      0      0      0   1593    210          0         0         0         0         0         0         0         0         0         0         0         0         0
+    2     54     29     28      0      0      0      0      0      0   1593    210          0         0         0         0         0         0         0         0         0         0         0         0         0
+    3     57     30     27      0      0      0      0      0      0   1593    210          0         0         0         0         0         0         0         0         0         0         0         0         0
+    4     55     29     28      0      0      0      0      0      0   1593    210          0         0         0         0         0         0         0         0         0         0         0         0         0
+    5     54     29     27      0      0      0      0      0      0   1593    210          0         0         0         0         0         0         0         0         0         0         0         0         0
+    6     56     29     27      0      0      0      0      0      0   1593    210          0         0         0         0         0         0         0         0         0         0         0         0         0
+    7     54     30     28      0      0      0      0      0      0   1593    210          0         0         0         0         0         0         0         0         0         0         0         0         0
+```
+
+
 
 
 ```bash
