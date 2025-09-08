@@ -1,7 +1,7 @@
 ---
 title: GPU性能分析工具
 excerpt: '工欲善其事，必先利其器。对于性能分析也一样，Nsys/NCU/nvidia-smi/profile工具的使用'
-index_img: /img/post/
+index_img: /img/post/gpu.svg
 category_bar:
   - ''
 categories:
@@ -256,7 +256,7 @@ NIC Legend:
   NIC4: mlx5_4
   NIC5: mlx5_5
 
-# 检查Mellanox网卡是否安装和版本
+# 检查Mellanox网卡是否安装 以及 安装版本
 > lspci | grep Mellanox
 
 1d:00.0 Infiniband controller: Mellanox Technologies MT28908 Family [ConnectX-6]
@@ -277,6 +277,7 @@ mlx5_4 port 1 ==> ib2 (Down)
 mlx5_5 port 1 ==> ib3 (Down)
 
 
+# 显示 InfiniBand 网络设备运行状态
 > ibstat
 
 CA 'mlx5_0'
@@ -420,7 +421,17 @@ dcgmi discovery --list
 dcgmi profile -l
 ```
 
-这种操作命令行的形式我用的不多，具体采集指标可以参考:[Getting Started with DCGM Diagnostics](https://docs.nvidia.com/datacenter/dcgm/latest/user-guide/dcgm-diagnostics.html#getting-started-with-dcgm-diagnostics)
+这种操作命令行的形式用的不多，具体采集指标可以参考 : [Getting Started with DCGM Diagnostics](https://docs.nvidia.com/datacenter/dcgm/latest/user-guide/dcgm-diagnostics.html#getting-started-with-dcgm-diagnostics)
+
+```bash
+# 查看有哪些可以采集的指标
+dcgmi dmon -l
+
+# -e 中常用：sm_active（1002）、sm_occupancy（1003）、tensor_active（1004）、fp64_active（1006）、fp32_active（1007）、fp16_active（1008）
+# -i 指定某个gpu
+dcgmi dmon -i 0 -e 1002,1003,1004,1006,1007,1008
+```
+
 
 
 ### DCGM Exporter
@@ -440,7 +451,6 @@ docker run -d --rm \
 
 # 查看是否可以获取指标，这个 9400 是容器对外暴露的端口
 curl localhost:9400/metrics
-
 ```
 
 > 其实这个 `DCGM Exporter` 就是一种中转，还是将 `nv-hostengine` 采集到的指标信息汇总，然后通过 `localhost:9400/metrics` 被监控看板获取指标数据。
@@ -456,6 +466,95 @@ nv-hostengine ---> DCGM Exporter ---> Prometheus/Grafana
 # Nsight Systems(nsys)
 
 ## 安装
+可以通过网站 [tools-downloads](https://developer.nvidia.com/tools-downloads) 找到 `Nsight Systems` 下载即可。这里 `Ubuntu` 系统为例（安装 `full` 版本，如果只是用于服务器上命令行使用，可以只考虑 `CLI Only` 版本）：
+![alt text](/img/assets/tools/image-1.png)
+
+```bash
+# 下载软件，这里考虑使用2025.2.1.130这个版本
+wget https://developer.nvidia.com/downloads/assets/tools/secure/nsight-systems/2025_2/NsightSystems-linux-public-2025.2.1.130-3569061.run
+
+# 给运行权限
+chmod a+x NsightSystems-linux-public-2025.2.1.130-3569061.run
+
+# 执行
+./NsightSystems-linux-public-2025.2.1.130-3569061.run
+```
+
+安装完成后，需要将安装目录中的 `bin` 文件夹添加到系统的 `PATH` 环境变量中（如果想要永久生效，需要将其写入配置文件，如 `~/.bashrc` 或 `~/.zshrc`）:
+
+```bash
+export PATH="/opt/nvidia/nsight-systems/2025.2.1/bin:$PATH"
+```
+
+
+**注意**：如果是通过上述 `*.run` 方式安装的，可以通过将安装目录删除达到卸载软件的效果，但是如果通过 `*.deb` 软件包安装的，如：
+
+```bash
+# 只有 nsys cli 的 deb
+wget https://developer.nvidia.com/downloads/assets/tools/secure/nsight-systems/2025_2/NsightSystems-linux-cli-public-2025.2.1.130-3569061.deb
+ 
+ # 注意：一定要加./表示从本地安装，否则会去联网查找
+ # 该方式安装，无需配置环境变量，因为会在/usr/local/bin/ 创建一个链接，指向对应的执行文件
+ # 想看具体的链接执行路径在哪，可以通过 readlink -f /usr/local/bin/nsys 查看
+ #                             或者 realpath /usr/local/bin/nsys 查看
+ apt-get install ./NsightSystems-linux-cli-public-2025.2.1.130-3569061.deb
+```
+
+需要依据卸载 `*.deb` 软件包的方法卸载：
+
+```bash
+# 安装 .deb 文件时，apt 会将包名注册到系统中，但包名可能与文件名不同
+# 列出所有包含 "nsight" 的已安装包
+> dpkg -l | grep nsight
+ii  nsight-systems-cli-2025.2.1                2025.2.1.130-252135690618v0             amd64        Nsight Systems is a statistical sampling profiler with tracing features.
+
+
+# 卸载软件,使用 apt 或 apt-get 卸载包（替换为实际查到的包名）
+> sudo apt-get remove  nsight-systems-cli-2025.2.1
+
+# 卸载后，运行以下命令清理不再需要的依赖项
+> sudo apt-get autoremove
+
+# 再次检查
+> dpkg -l | grep nsight
+```
+
+
+## 使用
+
+当然对于 `nsys` 的使用，可以直接参考：[User Guide — nsight-systems](https://docs.nvidia.com/nsight-systems/UserGuide/index.html#user-guide)，当然也可以通过 `nsys --help` 初略查看：
+
+```bash
+> nsys --help
+
+usage: nsys [--version] [--help] <command> [<args>] [application] [<application args>]
+
+ The most commonly used nsys commands are:
+        profile       Run an application and capture its profile into a nsys-rep file.
+        launch        Launch an application ready to be profiled.
+        start         Start a profiling session.
+        stop          Stop a profiling session and capture its profile into a nsys-rep file.
+        cancel        Cancel a profiling session and discard any collected data.
+        service       Launch the Nsight Systems data service.
+        stats         Generate statistics from an existing nsys-rep or SQLite file.
+        status        Provide current status of CLI or the collection environment.
+        shutdown      Disconnect launched processes from the profiler and shutdown the profiler.
+        sessions list List active sessions.
+        export        Export nsys-rep file into another format.
+        analyze       Identify optimization opportunities in a nsys-rep or SQLITE file.
+        recipe        Run a recipe for multi-node analysis.
+        nvprof        Translate nvprof switches to nsys switches and execute collection.
+
+ Use 'nsys --help <command>' for more information about a specific command.
+
+ To run a basic profiling session:   nsys profile ./my-application
+ For more details see "Profiling from the CLI" at https://docs.nvidia.com/nsight-systems
+```
+
+### 捕获（trace）
+
+
+### 分析（nsys-ui）
 
 
 
