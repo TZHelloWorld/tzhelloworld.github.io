@@ -443,9 +443,9 @@ curl localhost:9400/metrics
 
 ```
 
-> 其实这个 `DCGM Exporter` 就是一种中转，还是将 `nv-hostengine` 采集到的指标信息汇总，然后转发到监控看板上而已。
+> 其实这个 `DCGM Exporter` 就是一种中转，还是将 `nv-hostengine` 采集到的指标信息汇总，然后通过 `localhost:9400/metrics` 被监控看板获取指标数据。
 
-需要注意的是，这里有两个时间间隔： `DCGM-Exporter` 的采样间隔 和 `Prometheus/Grafana` 的采样间隔。其中的`DCGM-Exporter` 的采样间隔可能需要修改 `Dockerfile` 重建镜像来设置。
+需要注意的是，这里有两个时间间隔： `DCGM-Exporter` 的采样间隔 和 `Prometheus/Grafana` 的采样间隔（默认15秒）。其中的 `DCGM-Exporter` 的采样间隔可能需要修改 `Dockerfile` 重建镜像来设置。
 
 ```bash
 # 指标流向
@@ -455,6 +455,10 @@ nv-hostengine ---> DCGM Exporter ---> Prometheus/Grafana
 
 # Nsight Systems(nsys)
 
+## 安装
+
+
+
 
 # Nsight Compute(ncu)
 
@@ -462,7 +466,6 @@ nv-hostengine ---> DCGM Exporter ---> Prometheus/Grafana
 # pytorch.profiler
 
 
-# 
 
 
 ## 通过 Perfetto 打开
