@@ -10,7 +10,7 @@ categories:
 tags:
   - Linux
   - gcc
-  - 
+  - compiler
 date: 2025-07-02 23:36:52
 updated:
 sticky:

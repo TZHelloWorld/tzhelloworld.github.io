@@ -140,7 +140,7 @@ nvidia-smi --query-gpu=clocks.current.graphics,clocks.current.sm,clocks.current.
 ```
 
 ```bash
-# 查询使用
+# 查询使用，不同版本内容可能不一样
 > nvidia-smi dmon --help
 
     GPU statistics are displayed in scrolling format with one line
@@ -384,23 +384,73 @@ CA 'mlx5_5'
 
 ```
 
-
-
-
-
-
 ## dcgmi & DCGM Exporter
 
 ![dcgmi client](/img/assets/tools/image.png)
 
 ### dcgmi
+想要使用 `dcgmi` 命令，需要安装软件:
 
-这个我用的不是很多，基本都是
+```bash
+# 根据不同的系统安装（Ubuntu系统），
+# 参考 https://docs.nvidia.com/datacenter/dcgm/latest/user-guide/getting-started.html#ubuntu-lts-and-debian
+sudo apt-get update && sudo apt-get install -y datacenter-gpu-manager
+```
 
+使用之前，需要使用 `nv-hostengine` 启动一下服务：
+
+```bash
+# 查看帮助
+nv-hostengine --help
+
+# 本地启动,默认开启端口 5555, 指定 日志输出目录为host.debug.log, 并且制定日志级别为debug
+nv-hostengine -f host.debug.log --log-level debug
+```
+
+使用 `dcgmi` 连接查询 `DCGM` 服务采集的指标：
+
+```bash
+# 查看帮助
+dcgmi --help
+
+# 查询默认ip（127.0.0.1）和默认端口（5555）采集的机器
+dcgmi discovery --list
+
+# 查询默认ip（127.0.0.1）和默认端口（5555）采集的机器的指标有哪些
+dcgmi profile -l
+```
+
+这种操作命令行的形式我用的不多，具体采集指标可以参考:[Getting Started with DCGM Diagnostics](https://docs.nvidia.com/datacenter/dcgm/latest/user-guide/dcgm-diagnostics.html#getting-started-with-dcgm-diagnostics)
 
 
 ### DCGM Exporter
 
+`DCGM Exporter` 主要是将 `nv-hostengine` 采集到的信息通过网络形式，在 `Prometheus` 或 `Grafana` 上可视化。启动命令如下：
+
+```bash
+# 启动参考： https://docs.nvidia.com/datacenter/cloud-native/gpu-telemetry/latest/dcgm-exporter.html#connecting-to-an-existing-dcgm-agent
+# 注意，这个好像需要启动 nv-hostengine 进程
+DCGM_EXPORTER_VERSION=2.1.4-2.3.1 &&
+docker run -d --rm \
+   --gpus all \
+   --net host \
+   --cap-add SYS_ADMIN \
+   nvcr.io/nvidia/k8s/dcgm-exporter:${DCGM_EXPORTER_VERSION}-ubuntu20.04 \
+   -r localhost:5555 -f /etc/dcgm-exporter/dcp-metrics-included.csv
+
+# 查看是否可以获取指标，这个 9400 是容器对外暴露的端口
+curl localhost:9400/metrics
+
+```
+
+> 其实这个 `DCGM Exporter` 就是一种中转，还是将 `nv-hostengine` 采集到的指标信息汇总，然后转发到监控看板上而已。
+
+需要注意的是，这里有两个时间间隔： `DCGM-Exporter` 的采样间隔 和 `Prometheus/Grafana` 的采样间隔。其中的`DCGM-Exporter` 的采样间隔可能需要修改 `Dockerfile` 重建镜像来设置。
+
+```bash
+# 指标流向
+nv-hostengine ---> DCGM Exporter ---> Prometheus/Grafana
+```
 
 
 # Nsight Systems(nsys)
