@@ -553,8 +553,141 @@ usage: nsys [--version] [--help] <command> [<args>] [application] [<application 
 
 ### 捕获（trace）
 
+1. 只采集 `GPU Metrics` 指标：通过周期性采样 `GPU` 硬件的性能指标，并记录与不同 `GPU` 硬件单元相关的详细时间统计信息。它借助专用硬件的优势，在单次数据采集过程中即可捕获这些数据，且对系统资源的额外消耗极小。统计包括：IO吞吐量和SM利用率等详细信息。
+   ```bash
+   # 直接采集本机器上所有GPU硬件能获取的性能指标
+   nsys profile --gpu-metrics-devices all
 
-### 分析（nsys-ui）
+   # 查看可以使用哪些卡，以及对应的架构
+   nsys profile --gpu-metrics-devices=help
+
+   # 查看当前GPU卡兼容芯片对应的指标集
+   nsys profile --gpu-metrics-devices=all --gpu-metrics-set=help
+   ```
+   说明：
+   - `--gpu-metrics-frequency`：指定 `GPU Metrics` 采样频率。默认`10kHz`，支持的频率有`10Hz~200kHz`
+   - `--gpu-metrics-devices=0`：通过定期采样的方式从指定设备收集 `GPU` 指标，默认为`none`，可选`[all, cuda-visible, none, <index>]`。
+   - `--gpu-metrics-set=ad10x`：与`--gpu-metrics-devices`配合使用，指定要采集的 `GPU` 性能指标集。若不指定该参数，则会自动选择选定 `GPU` 的第一个兼容芯片对应的指标集 。由于不同 `GPU` 芯片的硬件架构存在差异，例如消费级的 `RTX 4090`（`AD102` 芯片）缺乏 `NVLink` 互连技术，而服务器级的 `A800-SXM4-80G`（`GA102` 芯片）支持 `NVLink`，因此对应的指标集（如 `ad10x` 和 `ga100`）会采集不同的指标数据。可通过 `nsys profile --gpu-metrics-set=help` 查看可选项，然后结合 `nsys profile --gpu-metrics-devices=help` 查看采集显卡芯片与显卡名称来确定使用合适的指标集。
+        ![alt text](../../img/assets/tools/image-3.png)
+
+
+2. 使用 `nsys profile` 直接捕获程序从头执行到尾的完整信息。
+   ```bash
+   nsys profile --trace=cuda,cudnn,cublas,osrt,nvtx \
+        --gpuctxsw=true \
+        --gpu-metrics-devices=all \
+        --gpu-metrics-set=ad10x \
+        # --cuda-memory-usage true \
+        --sample=process-tree --backtrace=none \
+        --python-backtrace=cuda --cudabacktrace=none \
+        -o demo_profile --force-overwrite=true\
+   python my_script.py
+   ``` 
+   说明：
+   - `--trace=cuda,cudnn,cublas,osrt,nvtx`：指明需要`trace`的`api`有哪些，默认捕获`cuda`, `opengl`, `nvtx`, `osrt`。可以根据需要自行设置。
+   - `--gpuctxsw=true` : 默认`False`，用于追踪 `GPU context` 切换的能力，需要驱动程序 `R435.17` 或更高版本以及 `root` 权限。这个上下文追踪的信息不太精确，最好还是以 `GPU Metrics` 为标准。
+   ![GPU context切换捕获](../../img/assets/tools/image-2.png)
+   - `--cuda-memory-usage=True`：跟踪 `CUDA` 内核的 `GPU` 内存使用情况，默认为 `False`。仅在启用 `CUDA` 跟踪时适用。注意，这个会导致大量的运行时开销。
+   - `-o=demo_profile --force-overwrite=true`：`-o`设置输出采集报表名称，`--force-overwrite`覆盖任何现有的输出文件。
+
+
+3. `nsys profile`配合 `--start-later` 和 `--stop-on-exit` 参数可以通过命令开关来对特定区间采集性能指标。常用于服务启动类型的抓取：
+   ```bash
+   nsys profile --trace=cuda,nvtx,cudnn,cublas \
+        --cuda-graph-trace=node \
+        --gpu-metrics-devices=all \
+        --start-later=true \
+        --stop-on-exit=false \
+    python xxx.py [args]
+    ```
+    启动时候有相关的提示信息有：
+    ```bash
+    WARNING: duration = 0 and --stop-on-exit=false. You'll have to interactively stop the collection through `nsys stop --session=profile-1`.
+    ```
+    此时可以通过命令去终端捕获某个区间的指标信息：
+    ```bash
+    # 查看 nsys 的状态，此时处于延迟抓取状态。
+    > nsys sessions list
+        ID         TIME                       STATE     LAUNCH    NAME
+        1043        02:19           DelayedCollection      1    profile-1
+
+    > nsys start --session=profile-1
+    # STATE 状态从 DelayedCollection 变为 Collection
+    > nsys sessions list
+        ID         TIME                       STATE     LAUNCH    NAME
+        1043        05:21                  Collection      1    profile-1
+
+    > nsys stop --session=profile-1
+    # 在新终端输入： STATE 状态从 Collection 变为 Generation
+    > nsys sessions list
+        ID         TIME                       STATE     LAUNCH    NAME
+        1043        10:07                  Generation      1    profile-1
+    
+    # 并且过一段时间后，输出结果：
+    Generating '/tmp/nsys-report-4f01.qdstrm'
+    [1/1] [========================100%] report1.nsys-rep
+    Generated:
+    /xxx/xxx/report1.nsys-rep
+    
+    # 再次查看sessions状态，发现这个和 nsys sessions 启动很相似
+    > nsys sessions list
+        ID         TIME                       STATE     LAUNCH    NAME
+        1043        07:11                    Launched      1    profile-1
+
+    # 值得注意的是，如果第二次开始抓取profile-1的session，同样可以用，但是无法抓取 --gpu-metrics-devices=all 等指标（相当于启动了一个新的默认 nsys sessions 一样）
+    > nsys start --session=profile-1
+    > nsys stop --session=profile-1
+    ```
+    {% note warning %}
+    其实查看[User Guide — nsight-systems](https://docs.nvidia.com/nsight-systems/UserGuide/index.html#user-guide)里面介绍，有个 `nsys launch`配合 `nsys start` 和 `nsys stop` 也能区间抓取，但是这个无法设置 `--gpu-metrics-devices=all` 采集 `GPU` 硬件指标（不确定是不是版本问题，新版本可以验证下）。
+    {% endnote %}
+
+### 分析视图（nsys-ui）
+
+#### GPU Metrics
+
+`Nsight Systems` 使用细节级别（ `LOD` ）缩放来显示时间轴上每个像素下的 `GPU` 使用量。然而，在这种缩放级别上，数据过于密集，无法看到真实的图案。可通过放大显示 `Nsight Systems` 捕获的内容的粒度。
+
+{% gi total n1-n2-... %}
+  ![数据点过于密集,显示平均情况](../../img/assets/tools/image-5.png)
+  ![红色区域的时间线放大,显示更真实的波动情况](../../img/assets/tools/image-6.png)
+{% endgi %}
+
+比如之前的默认采样频率为 10kHz，那么根据计算 $\frac{1}{10kHz} = 10^{-4} s = 100 \mu s$，有：
+
+![10k Hz 采样频率扩大查看](../../img/assets/tools/image-7.png)
+
+对于不同的 `GPU` 机器，采集到的 `GPU Metrics` 可能是不一样的，比如 `A800` 和 `4090` 的采集指标对比如下:
+
+![A800 && 4090 GPU-Metrics](../../img/assets/tools/image-4.png)
+
+硬件指标可参考：https://docs.nvidia.com/nsight-systems/UserGuide/index.html#gpu-metrics
+
+注意，这里有个活跃周期百分比的概念，因为默认采样频率是 `10 kHz`，那么采样间隔 `t = 1/10 kHz` 秒，那么在采样周期内（这个不确定具体多大）一般会采样`N`次（这个次数与采样间隔与采样周期有关），其中处于活跃状态的个数为`a`个，那么在该采样时间内活跃周期百分比为:
+$$ \frac {a}{N} \times 100 \\% $$
+
+
+说明：
+- `GR Active`：图形引擎/计算引擎处于活跃（`active`）状态的周期百分比，当`graphics pipe`或`compute pipe`正在处理工作状态时候，其属于活跃状态（`active`）
+- `SMs Active`：流式多处理器（`SM`）处于活跃（`active`）状态的周期百分比。若某个周期内`SM`中至少有一个线程束（`warp`）处于执行状态（已分配到`SM`），则该周期被计为活跃（`active`）周期。
+- `SM Instructions / SM Issue`：`SM` 子分区（`warp` 调度器）发出指令的周期数与采样周期中的周期数的百分比。
+- `SM Instructions / Tensor Active`：`SM` 中 `Tensor Core` 管道中主动发送张量指令的周期数与采样周期中的周期数的百分比。
+- `SM Warp Occupancy/Compute Warps in Flight`：驻留在 `SM` 上的处于活动状态的 `compute shader` 线程束(`warp`)与每个 `SM` 的理论最大线程束(`warp`)的百分比值。
+- `SM Warp Occupancy/Unallocated Warps in Active SMs`：活跃`SM`中未利用线程束（`warp`）比例。 在处于活跃状态的流式多处理器（`SM`）中，未被分配的线程束（`warp`）数量占该 `SM` 最大可容纳线程束总数的百分比 。（这个看官方介绍，并非硬件采集的指标，而是后续处理合成的指标）
+- `DRAM Bandwidth`：`DRAM` 其实就是显存，在采样周期中，处理读/写时间占采样周期时间的百分比值
+- `NVLink/PCIe Bandwidth`: 这个与网络传输数据有关，处于数据传输时间占采样周期时间的百分比值
+  - `TX`：`Transmit`（发送）的缩写，当设备需要发送数据到另一个设备时，它会通过 `TX` 信号线发送数据。
+  - `RX`：`Receive`（接收）的缩写，相对地，当设备需要接收来自另一个设备的数据时，它会通过 `RX` 信号线接收数据。
+- `PCIe Read/Write Requests to BAR1`：`BAR1` 是一种 `PCI Express`（`PCIe`）接口，用于允许 `CPU` 或其他设备直接访问 `GPU` 内存。`GPU` 通常通过其自身的复制引擎（`Copy Engines`）进行内存传输，这类操作不会被统计为 `BAR1` 活动。`CPU` 端的 `GPU` 驱动会执行少量 `BAR1` 访问，但更密集的流量通常来自其他技术。如在 `Linux` 系统中，`GPU Direct`、`GPU Direct RDMA` 和 `GPU Direct Storage` 等技术会通过 `PCIe BAR1` 进行数据传输。
+
+除此之外，如果在4090机器上，在采集过程中还需要注意：
+- `Sync Compute In Flight`：正在进行同步计算的活跃状态的百分比。
+- `Async Compute in Flight`：正在进行异步计算的活跃状态的百分比
+  
+> 因为 `GPU` 是异步执行的，如果不使用同步相关设置，那么就会出现 `Sync Compute In Flight` 持续百分之0，而`Async Compute in Flight`不为0。
+
+
+#### Kernel 执行采集
 
 
 
