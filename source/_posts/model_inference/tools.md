@@ -689,6 +689,9 @@ $$ \frac {a}{N} \times 100 \\% $$
 
 #### Kernel 执行采集
 
+如图，可以看到 `GPU Kernel Launcher` 的启动耗时，以及查看 `Kernel Execute`(算子执行) 耗时。这里点击一个 `CudaGraphLauncher`即可对应其真实在 `GPU` 上计算的算子。可以发现，两者执行时间点的耗时差别很大，符合 `CPU` 和 `GPU` 异步执行逻辑。
+
+![GPU Launcher & execute 耗时](../../img/assets/tools/nsys_time.png)
 
 
 
