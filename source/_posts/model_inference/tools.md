@@ -573,7 +573,12 @@ usage: nsys [--version] [--help] <command> [<args>] [application] [<application 
 
 2. 使用 `nsys profile` 直接捕获程序从头执行到尾的完整信息。
    ```bash
-   nsys profile --trace=cuda,cudnn,cublas,osrt,nvtx \
+   # 简略版本
+   nsys profile --stats=true -o report_name ./your_program
+  
+   # 较为详细使用
+   nsys profile --stats=true \
+        --trace=cuda,cudnn,cublas,osrt,nvtx \
         --gpuctxsw=true \
         --gpu-metrics-devices=all \
         --gpu-metrics-set=ad10x \
@@ -584,6 +589,7 @@ usage: nsys [--version] [--help] <command> [<args>] [application] [<application 
    python my_script.py
    ``` 
    说明：
+   - `--stats=true`：表示在分析后打印统计信息。
    - `--trace=cuda,cudnn,cublas,osrt,nvtx`：指明需要`trace`的`api`有哪些，默认捕获`cuda`, `opengl`, `nvtx`, `osrt`。可以根据需要自行设置。
    - `--gpuctxsw=true` : 默认`False`，用于追踪 `GPU context` 切换的能力，需要驱动程序 `R435.17` 或更高版本以及 `root` 权限。这个上下文追踪的信息不太精确，最好还是以 `GPU Metrics` 为标准。
    ![GPU context切换捕获](../../img/assets/tools/image-2.png)
