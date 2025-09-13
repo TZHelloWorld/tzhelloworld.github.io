@@ -703,6 +703,9 @@ $$ \frac {a}{N} \times 100 \\% $$
 
 # Nsight Compute(ncu)
 
+## 安装
+
+
 
 # pytorch.profiler
 
