@@ -1,7 +1,7 @@
 ---
 title: Linux 基础-查看进程命令 ps、top和htop 
 excerpt: ''
-index_img: /img/post/
+index_img: /img/post/Linux.png
 category_bar:
   - 'Linux'
 categories:
