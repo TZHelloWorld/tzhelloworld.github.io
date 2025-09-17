@@ -597,7 +597,7 @@ usage: nsys [--version] [--help] <command> [<args>] [application] [<application 
    - `-o=demo_profile --force-overwrite=true`：`-o`设置输出采集报表名称，`--force-overwrite`覆盖任何现有的输出文件。
 
 
-3. `nsys profile`配合 `--start-later` 和 `--stop-on-exit` 参数可以通过命令开关来对特定区间采集性能指标。常用于服务启动类型的抓取：
+3. `nsys profile` 配合 `--start-later` 和 `--stop-on-exit` 参数可以通过命令开关来对特定区间采集性能指标。常用于服务启动类型的抓取：
    ```bash
    nsys profile --trace=cuda,nvtx,cudnn,cublas \
         --cuda-graph-trace=node \
@@ -708,6 +708,8 @@ $$ \frac {a}{N} \times 100 \\% $$
 
 
 # pytorch.profiler
+
+ > 注意，这个只是单机单卡上捕获的，参考：https://reiase.github.io/2025/04/28/dist_probe_3/#timeline_1
 
 
 
