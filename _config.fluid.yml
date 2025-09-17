@@ -1055,6 +1055,7 @@ about:
   icons:
     - { class: "iconfont icon-github-fill", link: "https://github.com/TZHelloWorld", tip: "GitHub" }
     - { class: "iconfont icon-zhihu-fill", link: "https://www.zhihu.com/people/jun-mo-xiao-45-13", tip: "知乎" }
+    - { class: "iconfont icon-slack-fill", link: "https://sgl-fru7574.slack.com/team/U091Z701NLE", tip: "slack" }
     - { class: "iconfont icon-wechat-fill", qrcode: "/img/wechat.png" }
 
 
