@@ -98,3 +98,22 @@ sticky:
   - `/etc/profile`：系统级的“登录 Shell”初始化脚本，在所有用户登录时被 Bash（及兼容 Bourne 的 Shell）读取，用于定义全局环境变量、`PATH`。
   - `~/.bash_profile`：当前用户的专属“登录 Bash Shell”初始化脚本，仅在交互式登录时被 Bash 读取，用以设置用户特有的环境变量、别名和启动行为；若存在，它将覆盖或补充 /etc/profile 中的配置
 
+
+# 常见环境变量使用（汇总）
+
+## Python环境变量
+
+PYTHONPATH
+
+
+
+## NCCL
+
+参考：[NCCL Environment Variables](https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/env.html)
+
+最常用：
+```bash
+export NCCL_DEBUG=WARN # 设置日志级别，选择有 VERSION、WARN、INFO、TRACE
+export NCCL_DEBUG_FILE=filename.%h.%p.log # 指定将NCCL日志输出到某个文件中,其中，%h表示主机名，%p表示进程PID
+ 
+```
