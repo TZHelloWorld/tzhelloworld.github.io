@@ -382,7 +382,50 @@ CA 'mlx5_5'
                 Capability mask: 0xa651e848
                 Port GUID: 0x946dae0300d539b2
                 Link layer: InfiniBand
+```
 
+```bash
+       GPU0    GPU1   GPU2   GPU3   GPU4   GPU5   GPU6   GPU7   NIC0   NIC1   NIC2   NIC3   NIC4   NIC5   NIC6   NIC7   NIC8   NIC9   CPU Affinity    NUMA Affinity    GPU NUMA ID
+GPU0     X     PHB    PHB    PHB    SYS    SYS    SYS    SYS    SYS    PIX    PHB    PHB    PHB    SYS    SYS    SYS    SYS    SYS      0-53    0          N/A
+GPU1    PHB     X     PHB    PHB    SYS    SYS    SYS    SYS    SYS    PHB    PIX    PHB    PHB    SYS    SYS    SYS    SYS    SYS      0-53    0          N/A
+GPU2    PHB    PHB     X     PHB    SYS    SYS    SYS    SYS    SYS    PHB    PHB    PIX    PHB    SYS    SYS    SYS    SYS    SYS      0-53    0          N/A
+GPU3    PHB    PHB    PHB     X     SYS    SYS    SYS    SYS    SYS    PHB    PHB    PHB    PIX    SYS    SYS    SYS    SYS    SYS      0-53    0          N/A
+GPU4    SYS    SYS    SYS    SYS     X     PHB    PHB    PHB    SYS    SYS    SYS    SYS    SYS    PIX    PHB    PHB    PHB    SYS      54-107  1          N/A
+GPU5    SYS    SYS    SYS    SYS    PHB     X     PHB    PHB    SYS    SYS    SYS    SYS    SYS    PHB    PIX    PHB    PHB    SYS      54-107  1          N/A
+GPU6    SYS    SYS    SYS    SYS    PHB    PHB     X     PHB    SYS    SYS    SYS    SYS    SYS    PHB    PHB    PIX    PHB    SYS      54-107  1          N/A
+GPU7    SYS    SYS    SYS    SYS    PHB    PHB    PHB     X     SYS    SYS    SYS    SYS    SYS    PHB    PHB    PHB    PIX    SYS      54-107  1          N/A
+NIC0    SYS    SYS    SYS    SYS    SYS    SYS    SYS    SYS     X     SYS    SYS    SYS    SYS    SYS    SYS    SYS    SYS    SYS
+NIC1    PIX    PHB    PHB    PHB    SYS    SYS    SYS    SYS    SYS     X     PHB    PHB    PHB    SYS    SYS    SYS    SYS    SYS
+NIC2    PHB    PIX    PHB    PHB    SYS    SYS    SYS    SYS    SYS    PHB     X     PHB    PHB    SYS    SYS    SYS    SYS    SYS
+NIC3    PHB    PHB    PIX    PHB    SYS    SYS    SYS    SYS    SYS    PHB    PHB     X     PHB    SYS    SYS    SYS    SYS    SYS
+NIC4    PHB    PHB    PHB    PIX    SYS    SYS    SYS    SYS    SYS    PHB    PHB    PHB     X     SYS    SYS    SYS    SYS    SYS
+NIC5    SYS    SYS    SYS    SYS    PIX    PHB    PHB    PHB    SYS    SYS    SYS    SYS    SYS     X     PHB    PHB    PHB    SYS
+NIC6    SYS    SYS    SYS    SYS    PHB    PIX    PHB    PHB    SYS    SYS    SYS    SYS    SYS    PHB     X     PHB    PHB    SYS
+NIC7    SYS    SYS    SYS    SYS    PHB    PHB    PIX    PHB    SYS    SYS    SYS    SYS    SYS    PHB    PHB     X     PHB    SYS
+NIC8    SYS    SYS    SYS    SYS    PHB    PHB    PHB    PIX    SYS    SYS    SYS    SYS    SYS    PHB    PHB    PHB     X     SYS
+NIC9    SYS    SYS    SYS    SYS    SYS    SYS    SYS    SYS    SYS    SYS    SYS    SYS    SYS    SYS    SYS    SYS    SYS     X
+
+Legend:
+
+  X    = Self
+  SYS  = Connection traversing PCIe as well as the SMP interconnect between NUMA nodes (e.g., QPI/UPI)
+  NODE = Connection traversing PCIe as well as the interconnect between PCIe Host Bridges within a NUMA node
+  PHB  = Connection traversing PCIe as well as a PCIe Host Bridge (typically the CPU)
+  PXB  = Connection traversing multiple PCIe bridges (without traversing the PCIe Host Bridge)
+  PIX  = Connection traversing at most a single PCIe bridge
+
+NIC Legend:
+
+  NIC0: mlx5_0
+  NIC1: mlx5_1
+  NIC2: mlx5_2
+  NIC3: mlx5_3
+  NIC4: mlx5_4
+  NIC5: mlx5_5
+  NIC6: mlx5_6
+  NIC7: mlx5_7
+  NIC8: mlx5_8
+  NIC9: mlx5_9
 ```
 
 ## dcgmi & DCGM Exporter
