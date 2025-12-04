@@ -2,6 +2,7 @@
 Thumbs.db
 db.json
 *.log
+*.drawio.bkp
 node_modules/
 public/
 .deploy*/
