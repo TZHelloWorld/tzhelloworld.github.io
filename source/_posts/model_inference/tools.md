@@ -1,6 +1,6 @@
 ---
 title: GPU性能分析工具
-excerpt: '工欲善其事，必先利其器。对于性能分析也一样，Nsys/NCU/nvidia-smi/profile工具的使用'
+excerpt: '工欲善其事，必先利其器。对于性能分析也一样，这里介绍Nsys/NCU/nvidia-smi/profile工具的使用'
 index_img: /img/post/gpu.svg
 category_bar:
   - ''
@@ -15,6 +15,162 @@ sticky:
 {% note success %}
 这个主要是对训练/推理过程中，可视化`GPU`性能的分析工具使用说明，注意在容器中需要权限去访问底层硬件，所以一般需要提供 `CAP_SYS_ADMIN/SYS_ADMIN` 权限，或者说`--privileged`权限。
 {% endnote %}
+
+# CUDA Driver && CUDA Toolkit
+
+对于 `CUDA Driver` 以及 `CUDA Toolkit` 可以单独安装。基本来自于完全版的 [CUDA Toolkit](https://developer.nvidia.com/cuda/toolkit)（安装的时候可以阉割版的选择安装, `Linux` 默认安装路径是 `/usr/local/cuda-xxx`），其由以下组件构成：
+- `Compiler`: `CUDA-C` 和 `CUDA-C++` 编译器 `NVCC` 位于 `bin/` 目录中.
+- `Tools`: 提供一些像 `cuda-gdb`，`ncu` 等`debuggers`/ `profile`工具。这些工具可以从 `bin/` 目录中获取、
+- `Libraries`: 可以在`lib/`目录中查到，并且其接口在 `include/` 目录下。【注意，不是所有的库都在这个 `CUDA Toolkit` 中：对于`NCCL`通讯库 `libnccl.so`在 `Driver` 中；而`cuDNN`库也不在 `CUDA Toolkit` 安装包里,需要单独安装】
+  - cudart: CUDA Runtime
+  - cudadevrt: CUDA device runtime
+  - cupti: CUDA profiling tools interface
+  - nvml: NVIDIA management library
+  - nvrtc: CUDA runtime compilation
+  - cublas: BLAS (Basic Linear Algebra Subprograms)
+  - cublas_device: BLAS kernel interface
+  - ...
+- CUDA Driver: `CUDA`驱动程序，每个`CUDA Toolkit` 都会有一个对应最低版本的 `CUDA Driver`。`CUDA Driver`是向后兼容的。通常为了方便，在安装 `CUDA Toolkit` 的时候会默认安装一个对应的`CUDA Driver`版本。
+
+> 对于低版本的 `CUDA Toolkit` 包中，一般会有类似 `samples` 的文件夹，但是后面将这部分直接移到了 [GitHub - NVIDIA/cuda-samples: Samples for CUDA Developers which demonstrates features in CUDA Toolki](https://github.com/NVIDIA/cuda-samples)。需要借助 `nvcc` 进行编译执行。
+
+
+因为上述中的 `CUDA Driver` 和 `CUDA Toolkit` 软件安装包可以独立安装，因此就会存在两者 `CUDA` 版本不一致的情况（由于 `CUDA Driver` 向后兼容，因此也不会报错）。与之对应的，也就有了两个主要的`API`：**Runtime(运行时) API** 和 **Driver API**。这两个 `API` 都有对应的 `CUDA` 版本。而 `nvcc`是与 `CUDA Toolkit` 一起安装的 `CUDA compiler-driver tool`，它只知道它自身构建时的 `CUDA runtime`版本，所以可以借助 `nvcc -V` 来确定 `CUDA Toolkit` 的版本。
+
+![https://help.aliyun.com/zh/ack/ack-managed-and-ack-dedicated/user-guide/ack-supported-nvidia-driver-version-list](../../img/assets/tools/CUDA_API.png)
+
+
+## 一些网址
+
+- 查询 `Toolkit` 各个版本：[CUDA Toolkit Archive](https://developer.nvidia.com/cuda-toolkit-archive)
+- 查询 `cuDNN` 各个版本：[cuDNN Archive](https://developer.nvidia.com/cudnn-archive)
+- `NCCL` 库的安装：[NVIDIA Collective Communications Library (NCCL)](https://developer.nvidia.com/nccl)
+- 查询 `CUDA Toolkit`与 `CUDA Driver`兼容表：[CUDA Toolkit Major Components](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html)
+- todo...
+
+## `pip` 安装时候对 `CUDA Toolkit` 的封装
+
+其实，在 `Linux` 系统上通过命令 `pip install torch` 安装的时候，不会用 `Linux` 已经安装的 `CUDA ToolKit`库( 默认目录`/usr/local/cuda-xxx`)，而是将这个 `CUDA ToolKit` 库依赖内置在 `pip` 分发版本中。安装完成后，通过 `pip list | grep nvidia` 可以看到对应的依赖库：
+
+> 注意，这个在 Window 系统上不适用。
+
+
+```bash
+>>> pip list | grep nvidia
+
+nvidia-cublas-cu12        12.9.1.4
+nvidia-cuda-cupti-cu12    12.9.79
+nvidia-cuda-nvrtc-cu12    12.9.86
+nvidia-cuda-runtime-cu12  12.9.79
+nvidia-cudnn-cu12         9.10.2.21
+nvidia-cudnn-frontend     1.15.0
+nvidia-cufft-cu12         11.4.1.4
+nvidia-cufile-cu12        1.14.1.1
+nvidia-curand-cu12        10.3.10.19
+nvidia-cusolver-cu12      11.7.5.82
+nvidia-cusparse-cu12      12.5.10.65
+nvidia-cusparselt-cu12    0.7.1
+nvidia-cutlass-dsl        4.3.0.dev0
+nvidia-ml-py              13.580.82
+nvidia-nccl-cu12          2.27.3
+nvidia-nvjitlink-cu12     12.9.86
+nvidia-nvtx-cu12          12.9.79
+```
+
+然后 `pip show` 去查看对应的库信息(这里以 `cublas` 进行举例):
+
+```bash
+>>> pip show nvidia-cublas-cu12
+
+Name: nvidia-cublas-cu12
+Version: 12.9.1.4
+Summary: CUBLAS native runtime libraries
+Home-page: https://developer.nvidia.com/cuda-zone
+Author: Nvidia CUDA Installer Team
+Author-email: compute_installer@nvidia.com
+License: LicenseRef-NVIDIA-Proprietary
+Location: /usr/local/lib/python3.12/dist-packages
+Requires: 
+Required-by: nvidia-cudnn-cu12, nvidia-cusolver-cu12, torch
+```
+
+进入到上述的 `Location` 目录查看，主要查看 `*.dist-info` 目录下的 `RECORD` 内容：
+
+```bash
+>>> cat /usr/local/lib/python3.12/dist-packages/nvidia_cublas_cu12-12.9.1.4.dist-info/RECORD
+
+nvidia/cublas/include/cublas.h,sha256=a0lLqy-k47NuwyDjuueC3W0Mpc908MTU7o5sMJqE-1w,41246
+nvidia/cublas/include/cublasLt.h,sha256=Zo_7r-ZRHWkohyAf1jLotjx0KBGWYh7vV2m6fLM7TFo,104268
+nvidia/cublas/include/cublasXt.h,sha256=CW9dyXYGSUW1wEXrVVyhU6OxBK1PUvMoYdVGlQT7L9A,37380
+nvidia/cublas/include/cublas_api.h,sha256=1dtyy6TIQB-ymoRH5k5rnBJaMN4sPjhSQt5lf-TpbL4,375691
+nvidia/cublas/include/cublas_v2.h,sha256=qxMdB5jb97luEfw61LEAB-Wlr8A9DLBvO4rRypDCNKw,15460
+nvidia/cublas/include/nvblas.h,sha256=dXCLR-2oUiJFzLsDtIAK09m42ct4G0HWdYzBUuDPXpc,23341
+nvidia/cublas/lib/libcublas.so.12,sha256=1jRW2U8bjiQIqKlTjIdA60dMnrpIqE9CCxXi4Q-80Eg,105140976
+nvidia/cublas/lib/libcublasLt.so.12,sha256=lt30iRyk9O0UdZZng6kYXfKr1kqBw8xxO5bQNmlvxUE,749205904
+nvidia/cublas/lib/libnvblas.so.12,sha256=9BKnB5ZDn2pEtI5RHlJ9Ht90GOcz7bpFGJJpqA6WIxE,753824
+nvidia_cublas_cu12-12.9.1.4.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+nvidia_cublas_cu12-12.9.1.4.dist-info/METADATA,sha256=9QYFRxRORca_jQAL9Q8kKFFOzH7d0swlXbn4mDUr0UY,1707
+nvidia_cublas_cu12-12.9.1.4.dist-info/RECORD,,
+nvidia_cublas_cu12-12.9.1.4.dist-info/WHEEL,sha256=pQkYcE_zO8O3IUE-PXGJ2qj02_9aLe-AqqPPB3Nn1Xg,109
+nvidia_cublas_cu12-12.9.1.4.dist-info/licenses/License.txt,sha256=rW9YU_ugyg0VnQ9Y1JrkmDDC-Mk_epJki5zpCttMbM0,59262
+nvidia_cublas_cu12-12.9.1.4.dist-info/top_level.txt,sha256=fTkAtiFuL16nUrB9ytDDtpytz2t0B4NvYTnRzwAhO14,7
+```
+
+查到了对应的 `.h` 和 `.so`文件路径后，查看上述 `Location` 目录下的 `nvidia` 目录中内容：
+
+```bash
+# 其实有各种的nvidia_xxxx_xxx.dist-info ，但是所有的库都指向对应的 nvidia 目录下 
+# (查看下 .dist-info/RECORD 内容即可)。
+nvidia
+├── cublas
+│   ├── include
+│   └── lib
+├── cuda_cupti
+│   ├── include
+│   └── lib
+├── cuda_nvrtc
+│   ├── include
+│   └── lib
+├── cuda_runtime
+│   ├── include
+│   └── lib
+├── cudnn
+│   ├── include
+│   └── lib
+├── cufft
+│   ├── include
+│   └── lib
+├── cufile
+│   ├── include
+│   └── lib
+├── curand
+│   ├── include
+│   ├── __init__.py
+│   ├── lib
+│   └── __pycache__
+├── cusolver
+│   ├── include
+│   └── lib
+├── cusparse
+│   ├── include
+│   └── lib
+├── cusparselt
+│   ├── include
+│   ├── lib
+│   └── LICENSE.txt
+├── __init__.py
+├── nccl
+│   ├── include
+│   └── lib
+├── nvjitlink
+│   ├── include
+│   └── lib
+└── nvtx
+    ├── include
+    └── lib
+```
+
+
 
 
 # NVML & DCGM
@@ -733,7 +889,7 @@ $$ \frac {a}{N} \times 100 \\% $$
 - `Sync Compute In Flight`：正在进行同步计算的活跃状态的百分比。
 - `Async Compute in Flight`：正在进行异步计算的活跃状态的百分比
   
-> 因为 `GPU` 是异步执行的，如果不使用同步相关设置，那么就会出现 `Sync Compute In Flight` 持续百分之0，而`Async Compute in Flight`不为0。
+> 因为 `GPU` 是异步执行的，如果不使用同步相关设置，那么就会出现 `Sync Compute In Flight` 持续百分之0，而 `Async Compute in Flight` 不为0。
 
 
 #### Kernel 执行采集
@@ -742,7 +898,24 @@ $$ \frac {a}{N} \times 100 \\% $$
 
 ![GPU Launcher & execute 耗时](../../img/assets/tools/nsys_time.png)
 
+#### 解析 `Nsys SQLite` 数据
 
+首先使用 `nsys-ui` 将对应的 `.nsys-rep` 文件打开，右击，将其导出为 `.sqlite` 文件.
+![export sqlite](../../img/assets/tools/export_sqlite.png)
+
+得到 `SQLite`数据后，就可以用 `SQL` 对文件分析工具进行查看，其中的表数据很多，重点关注两张数据表：
+
+- CUPTI_ACTIVITY_KIND_KERNEL：kernel信息数据，包含了kernel的时间轴信息等。`kernel` 有3个 `Name` 字段，分别是 `demangleName`、`shortName`、`mangedName` 等等。
+- stringIds：字符串映射表
+
+有了表数据，就可以结合 `SQL` 语句去查询自己想要的分析数据。
+
+
+## 结合 nvtx
+
+因为 `Nsight Systems` 更多的是关注算子执行时间，以及调用时机。对于CPU的执行时间是完全黑盒的，并且对于算子执行时间粒度比较小，很难快速查询某个 `iterator level` 执行时间范围。因此，需要使用一种事件标记（代码执行范围标记）的API，用于记录并可视化范围的工具。`NVIDIA® Tools Extension SDK` (`NVTX`)是一个基于C的应用程序编程接口(API)，用于在应用程序中注释事件、代码范围和资源。具体参考 ：(GitHub - NVIDIA/NVTX: The NVIDIA® Tools Extension SDK (NVTX) is a C-based Application Programming In)[https://github.com/NVIDIA/NVTX]。
+
+![nsys & nvtx](../../img/assets/tools/nvtx.png)
 
 # Nsight Compute(ncu)
 
@@ -761,5 +934,6 @@ $$ \frac {a}{N} \times 100 \\% $$
 
 
 # Compute Sanitizer/ cuda-memcheck
+
 
 # cuda-gdb
