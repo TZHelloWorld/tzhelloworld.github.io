@@ -14,6 +14,8 @@ sticky:
 ---
 {% note success %}
 这个主要是对训练/推理过程中，可视化`GPU`性能的分析工具使用说明，注意在容器中需要权限去访问底层硬件，所以一般需要提供 `CAP_SYS_ADMIN/SYS_ADMIN` 权限，或者说`--privileged`权限。
+
+在新版本中，将 `nsys` 和 `ncu` 添加到了 `CUDA Toolkit` 中了。
 {% endnote %}
 
 # CUDA Driver && CUDA Toolkit
@@ -169,8 +171,6 @@ nvidia
     ├── include
     └── lib
 ```
-
-
 
 
 # NVML & DCGM
@@ -665,6 +665,7 @@ nv-hostengine ---> DCGM Exporter ---> Prometheus/Grafana
 # Nsight Systems(nsys)
 
 ## 安装
+
 可以通过网站 [tools-downloads](https://developer.nvidia.com/tools-downloads) 找到 `Nsight Systems` 下载即可。这里 `Ubuntu` 系统为例（安装 `full` 版本，如果只是用于服务器上命令行使用，可以只考虑 `CLI Only` 版本）：
 ![alt text](/img/assets/tools/image-1.png)
 
@@ -917,9 +918,69 @@ $$ \frac {a}{N} \times 100 \\% $$
 
 ![nsys & nvtx](../../img/assets/tools/nvtx.png)
 
+
 # Nsight Compute(ncu)
 
+`Nsight Compute` 主要用于深入分析 `GPU` 内核执行的详细性能数据，例如寄存器使用、内存带宽、指令执行等。
+
 ## 安装
+
+可以通过网站 [tools-downloads](https://developer.nvidia.com/tools-downloads) 找到 `Nsight Compute` 下载即可。也可以通过[Download NVIDIA Nsight Compute](https://developer.nvidia.com/nsight-compute)下载：
+
+![ncu_download](../../img/assets/tools/ncu_download.png)
+
+```bash
+# 下载
+wget https://developer.nvidia.com/downloads/assets/tools/secure/nsight-compute/2025_1_1/nsight-compute-linux-2025.1.1.2-35528883.run
+
+# 安装
+bash nsight-compute-linux-2025.1.1.2-35528883.run
+```
+
+安装过程中需要输入一些设置：
+
+```bash
+Verifying archive integrity... All good.
+Uncompressing NVIDIA Nsight Compute  100%  
+Press <Enter> or <Return> to read end user license agreement.
+
+Do you <ACCEPT|DECLINE> the end user license agreement or do you want to <QUIT> (ACCEPT/DECLINE/QUIT): accept  
+Enter install path: [ default is /usr/local/NVIDIA-Nsight-Compute-2025.1 ]: 
+Would you like a symlink created at /usr/local/NVIDIA-Nsight-Compute? Existing folder will be deleted. (YES/NO):
+
+To uninstall the NVIDIA Nsight Compute, please delete "/usr/local/NVIDIA-Nsight-Compute-2025.1" and remove symlink at "/usr/local/NVIDIA-Nsight-Compute"
+Installation Complete
+```
+配置环境变量（）
+
+
+安装完成后，需要将安装目录中的 `bin` 文件夹添加到系统的 `PATH` 环境变量中（根据终端的不同，永久配置写入 `~/.bashrc` 或 `~/.zshrc`）:
+
+```bash
+export PATH="$PATH:/usr/local/NVIDIA-Nsight-Compute"
+```
+
+查看是否安装成功:
+
+```bash
+ncu --help
+```
+
+## 使用
+
+对于 `ncu` 的使用，可以直接参考：[User Guide — nsight-compute](https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html#)，当然也可以通过 `ncu --help` 查看（内容有点多，建议直接看一遍官方文档）。
+
+### 基本使用
+
+```bash
+ncu --set full --target-processes all -o output_report ./program_exec
+```
+说明：
+- `--set full`：执行全面的 `CUDA` 内核分析，包含内存使用、执行效率等详细的性能指标。
+- `--target-processes all`：捕获程序中所有的 `CUDA` 内核执行信息
+- `program_exec`：想要分析的 `CUDA` 程序
+- `-o output_report`：指定输出报告的文件名，生成一个 `.ncu-rep` 文件
+
 
 
 
