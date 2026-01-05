@@ -921,6 +921,8 @@ $$ \frac {a}{N} \times 100 \\% $$
 
 # Nsight Compute(ncu)
 
+> 这个需要结合具体的算子性能分析进行优化，并且需要比较深入的 CUDA 编程概念才能熟悉运用，推荐直接看 [User Guide — nsight-compute](https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html#) 和 [CUDA C++ Programming Guide (Legacy) — CUDA C++ Programming Guide](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#programming-model)
+
 `Nsight Compute` 主要用于深入分析 `GPU` 内核执行的详细性能数据，例如寄存器使用、内存带宽、指令执行等。
 
 ## 安装
@@ -972,6 +974,8 @@ ncu --help
 
 ### 基本使用
 
+最基础的使用方案：
+
 ```bash
 ncu --set full --target-processes all -o output_report ./program_exec
 ```
@@ -981,17 +985,50 @@ ncu --set full --target-processes all -o output_report ./program_exec
 - `program_exec`：想要分析的 `CUDA` 程序
 - `-o output_report`：指定输出报告的文件名，生成一个 `.ncu-rep` 文件
 
+如果想要分析特定的 `CUDA` 内核，可以通过 `--kernel-name` 参数来指定：
+
+```bash
+ncu --set full --kernel-name "regex:kernel_name" ./program_exec
+```
+
+- `--kernel-name`: 选项有 `regex:<expression>`(正则匹配) 或者 `<kernel name>`(完全匹配)
+
+### `ncu-ui` 工具分析
+
+`ncu` 工具是用于分析 `CUDA` 内核性能瓶颈的工具，包括寄存器利用率、内存访问效率、计算资源的利用率等等。其中 `ncu-ui` 的视图有：
+
+![ncu-ui](../../img/assets/tools/ncu_ui.png)
+
+视图包含：
+- **Summary**(摘要)：记录所有的 `CUDA` 算子信息,并且会在最底提供一些优化思路。
+- **Details** 
+  - GPU Speed Of Light Throughput：GPU计算能力和内存访问能力（`Roofline`理论）
+  - Compute Workload Analysis（计算工作负载分析）
+  - Memory Workload Analysis（内存工作负载分析）
+  - Scheduler Statistics
+  - Instruction Statistics（指令统计）
+  - Occupancy
+  - ...
+- **Source**：包含 `SASS` 或者 `PTX` 源码分析。
+- **Context**
+- **Comments**
+- **Raw**
+- **Session**
 
 
 
 # pytorch.profiler
 
- > 注意，这个只是单机单卡上捕获的，参考：https://reiase.github.io/2025/04/28/dist_probe_3/#timeline_1
+ > 注意，这个只是单机单卡上捕获的，对于多卡之间交互性能分析可能不是很友好。但是对于单卡 `CPU` 和 `GPU` 之间性能瓶颈分析会比较方便（单独分析 `CPU` 的 `overhead` 也很不错）。
+ 
 
 
 
 
-## 通过 Perfetto 打开
+
+## 分析视图
+
+通过 `Perfetto` 打开或者
 
 
 # Compute Sanitizer/ cuda-memcheck
