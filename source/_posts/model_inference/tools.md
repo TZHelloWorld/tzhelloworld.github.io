@@ -21,18 +21,19 @@ sticky:
 # CUDA Driver && CUDA Toolkit
 
 对于 `CUDA Driver` 以及 `CUDA Toolkit` 可以单独安装。基本来自于完全版的 [CUDA Toolkit](https://developer.nvidia.com/cuda/toolkit)（安装的时候可以阉割版的选择安装, `Linux` 默认安装路径是 `/usr/local/cuda-xxx`），其由以下组件构成：
-- `Compiler`: `CUDA-C` 和 `CUDA-C++` 编译器 `NVCC` 位于 `bin/` 目录中.
-- `Tools`: 提供一些像 `cuda-gdb`，`ncu` 等`debuggers`/ `profile`工具。这些工具可以从 `bin/` 目录中获取、
-- `Libraries`: 可以在`lib/`目录中查到，并且其接口在 `include/` 目录下。【注意，不是所有的库都在这个 `CUDA Toolkit` 中：对于`NCCL`通讯库 `libnccl.so`在 `Driver` 中；而`cuDNN`库也不在 `CUDA Toolkit` 安装包里,需要单独安装】
-  - cudart: CUDA Runtime
-  - cudadevrt: CUDA device runtime
-  - cupti: CUDA profiling tools interface
-  - nvml: NVIDIA management library
-  - nvrtc: CUDA runtime compilation
-  - cublas: BLAS (Basic Linear Algebra Subprograms)
-  - cublas_device: BLAS kernel interface
+- **Compiler**: `CUDA-C` 和 `CUDA-C++` 编译器 `NVCC` 位于 `bin/` 目录中.
+- **Tools**: 提供一些像 `cuda-gdb`，`ncu` 等`debuggers`/ `profile`工具。这些工具可以从 `bin/` 目录中获取、
+- **Libraries**: 可以在`lib/`目录中查到，并且其接口在 `include/` 目录下。【注意，不是所有的库都在这个 `CUDA Toolkit` 中：对于`NCCL`通讯库 `libnccl.so`在 `Driver` 中；而`cuDNN`库也不在 `CUDA Toolkit` 安装包里,需要单独安装】
+  - **cudart**: CUDA Runtime
+  - **cudadevrt**: CUDA device runtime
+  - **cupti**: CUDA profiling tools interface
+  - **nvml**: NVIDIA management library
+  - **nvrtc**: CUDA runtime compilation
+  - **cublas**: BLAS (Basic Linear Algebra Subprograms)
+  - **cublas_device**: BLAS kernel interface
   - ...
-- CUDA Driver: `CUDA`驱动程序，每个`CUDA Toolkit` 都会有一个对应最低版本的 `CUDA Driver`。`CUDA Driver`是向后兼容的。通常为了方便，在安装 `CUDA Toolkit` 的时候会默认安装一个对应的`CUDA Driver`版本。
+- **CUDA Driver**: `CUDA`驱动程序，每个`CUDA Toolkit` 都会有一个对应最低版本的 `CUDA Driver`。`CUDA Driver`是向后兼容的。通常为了方便，在安装 `CUDA Toolkit` 的时候会默认安装一个对应的`CUDA Driver`版本。
+
 
 > 对于低版本的 `CUDA Toolkit` 包中，一般会有类似 `samples` 的文件夹，但是后面将这部分直接移到了 [GitHub - NVIDIA/cuda-samples: Samples for CUDA Developers which demonstrates features in CUDA Toolki](https://github.com/NVIDIA/cuda-samples)。需要借助 `nvcc` 进行编译执行。
 
@@ -906,15 +907,15 @@ $$ \frac {a}{N} \times 100 \\% $$
 
 得到 `SQLite`数据后，就可以用 `SQL` 对文件分析工具进行查看，其中的表数据很多，重点关注两张数据表：
 
-- CUPTI_ACTIVITY_KIND_KERNEL：kernel信息数据，包含了kernel的时间轴信息等。`kernel` 有3个 `Name` 字段，分别是 `demangleName`、`shortName`、`mangedName` 等等。
-- stringIds：字符串映射表
+- **CUPTI_ACTIVITY_KIND_KERNEL**：`kernel` 信息数据，包含了 `kernel` 的时间轴信息等。`kernel` 有3个 `Name` 字段，分别是 `demangleName`、`shortName`、`mangedName` 等等。
+- **stringIds**：字符串映射表
 
 有了表数据，就可以结合 `SQL` 语句去查询自己想要的分析数据。
 
 
 ## 结合 nvtx
 
-因为 `Nsight Systems` 更多的是关注算子执行时间，以及调用时机。对于CPU的执行时间是完全黑盒的，并且对于算子执行时间粒度比较小，很难快速查询某个 `iterator level` 执行时间范围。因此，需要使用一种事件标记（代码执行范围标记）的API，用于记录并可视化范围的工具。`NVIDIA® Tools Extension SDK` (`NVTX`)是一个基于C的应用程序编程接口(API)，用于在应用程序中注释事件、代码范围和资源。具体参考 ：(GitHub - NVIDIA/NVTX: The NVIDIA® Tools Extension SDK (NVTX) is a C-based Application Programming In)[https://github.com/NVIDIA/NVTX]。
+因为 `Nsight Systems` 更多的是关注算子执行时间，以及调用时机。对于CPU的执行时间是完全黑盒的，并且对于算子执行时间粒度比较小，很难快速查询某个 `iterator level` 执行时间范围。因此，需要使用一种事件标记（代码执行范围标记）的API，用于记录并可视化范围的工具。`NVIDIA® Tools Extension SDK` (`NVTX`)是一个基于C的应用程序编程接口(API)，用于在应用程序中注释事件、代码范围和资源。具体参考 ：[GitHub - NVIDIA/NVTX: The NVIDIA® Tools Extension SDK (NVTX) is a C-based Application Programming In](https://github.com/NVIDIA/NVTX)。
 
 ![nsys & nvtx](../../img/assets/tools/nvtx.png)
 
@@ -953,8 +954,6 @@ Would you like a symlink created at /usr/local/NVIDIA-Nsight-Compute? Existing f
 To uninstall the NVIDIA Nsight Compute, please delete "/usr/local/NVIDIA-Nsight-Compute-2025.1" and remove symlink at "/usr/local/NVIDIA-Nsight-Compute"
 Installation Complete
 ```
-配置环境变量（）
-
 
 安装完成后，需要将安装目录中的 `bin` 文件夹添加到系统的 `PATH` 环境变量中（根据终端的不同，永久配置写入 `~/.bashrc` 或 `~/.zshrc`）:
 
@@ -974,7 +973,7 @@ ncu --help
 
 ### 基本使用
 
-最基础的使用方案：
+**方案一**：最基础的使用方案：
 
 ```bash
 ncu --set full --target-processes all -o output_report ./program_exec
@@ -985,7 +984,7 @@ ncu --set full --target-processes all -o output_report ./program_exec
 - `program_exec`：想要分析的 `CUDA` 程序
 - `-o output_report`：指定输出报告的文件名，生成一个 `.ncu-rep` 文件
 
-如果想要分析特定的 `CUDA` 内核，可以通过 `--kernel-name` 参数来指定：
+**方案二**：如果想要分析特定的 `CUDA` 内核，可以通过 `--kernel-name` 参数来指定：
 
 ```bash
 ncu --set full --kernel-name "regex:kernel_name" ./program_exec
@@ -1002,12 +1001,12 @@ ncu --set full --kernel-name "regex:kernel_name" ./program_exec
 视图包含：
 - **Summary**(摘要)：记录所有的 `CUDA` 算子信息,并且会在最底提供一些优化思路。
 - **Details** 
-  - GPU Speed Of Light Throughput：GPU计算能力和内存访问能力（`Roofline`理论）
-  - Compute Workload Analysis（计算工作负载分析）
-  - Memory Workload Analysis（内存工作负载分析）
-  - Scheduler Statistics
-  - Instruction Statistics（指令统计）
-  - Occupancy
+  - **GPU Speed Of Light Throughput**：GPU计算能力和内存访问能力（`Roofline`理论）
+  - **Compute Workload Analysis**（计算工作负载分析）
+  - **Memory Workload Analysis**（内存工作负载分析）
+  - **Scheduler Statistics**
+  - **Instruction Statistics**（指令统计）
+  - **Occupancy**
   - ...
 - **Source**：包含 `SASS` 或者 `PTX` 源码分析。
 - **Context**
@@ -1019,7 +1018,7 @@ ncu --set full --kernel-name "regex:kernel_name" ./program_exec
 
 # pytorch.profiler
 
- > 注意，这个只是单机单卡上捕获的，对于多卡之间交互性能分析可能不是很友好。但是对于单卡 `CPU` 和 `GPU` 之间性能瓶颈分析会比较方便（单独分析 `CPU` 的 `overhead` 也很不错）。
+ > 注意，这个只是单机单卡上捕获的，对于多卡之间交互性能分析不是很友好。但是对于单卡 `CPU` 和 `GPU` 之间性能瓶颈分析会比较方便（单独分析 `CPU` 的 `overhead` 也很不错）。
  
 
 
