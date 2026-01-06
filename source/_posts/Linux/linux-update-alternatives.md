@@ -15,21 +15,73 @@ updated:
 sticky:
 ---
 
-系统上往往会安装同一个工具的多个版本。为了让管理员可以选择，以及能一起安装和使用多个不同的版本，备选项系统提供了以一致的方式管理此类版本的功能。update-alternatives 是 Linux 系统中专门维护系统命令链接符的工具，通过它可以很方便的设置系统默认使用哪个命令、哪个软件版本，比如系统中同时安装了多个python版本库（python2.7和python3.10），那么就可以通过 update-alternatives 指定用哪个版本。
 
 
-update-alternatives命令的几个主要选项为：display、install、remove、config。
-- `display` 选项用来显示一个命令链接的所有可选命令，即查看一个命令链接组的所有信息，包括链接的模式(自动还是手动)、链接priority值、所有可 用的链接命令等等。
+系统上往往会安装同一个工具的多个版本。为了让管理员可以选择，以及能一起安装和使用多个不同的版本，备选项系统提供了以一致的方式管理此类版本的功能。**update-alternatives** 是 `Linux` 系统中专门维护系统命令链接符的工具，通过它可以很方便的设置系统默认使用哪个命令、哪个软件版本，比如系统中同时安装了多个`CUDA Toolkit`版本库（`CUDA 12.9` 和 `CUDA 11.8`），那么就可以通过 `update-alternatives` 指定用哪个版本。
+
+
+`update-alternatives`命令的几个主要选项为：`display`、`install`、`remove`、`config` 等等，
+
+```bash
+>>> update-alternatives --help
+
+Usage: update-alternatives [<option> ...] <command>
+
+Commands:
+  --install <link> <name> <path> <priority>
+    [--slave <link> <name> <path>] ...
+                           add a group of alternatives to the system.
+  --remove <name> <path>   remove <path> from the <name> group alternative.
+  --remove-all <name>      remove <name> group from the alternatives system.
+  --auto <name>            switch the master link <name> to automatic mode.
+  --display <name>         display information about the <name> group.
+  --query <name>           machine parseable version of --display <name>.
+  --list <name>            display all targets of the <name> group.
+  --get-selections         list master alternative names and their status.
+  --set-selections         read alternative status from standard input.
+  --config <name>          show alternatives for the <name> group and ask the
+                           user to select which one to use.
+  --set <name> <path>      set <path> as alternative for <name>.
+  --all                    call --config on all alternatives.
+
+<link> is the symlink pointing to /etc/alternatives/<name>.
+  (e.g. /usr/bin/pager)
+<name> is the master name for this link group.
+  (e.g. pager)
+<path> is the location of one of the alternative target files.
+  (e.g. /usr/bin/less)
+<priority> is an integer; options with higher numbers have higher priority in
+  automatic mode.
+
+Options:
+  --altdir <directory>     change the alternatives directory
+                             (default is /etc/alternatives).
+  --admindir <directory>   change the administrative directory
+                             (default is /var/lib/dpkg/alternatives).
+  --instdir <directory>    change the installation directory.
+  --root <directory>       change the filesystem root directory.
+  --log <file>             change the log file.
+  --force                  allow replacing files with alternative links.
+  --skip-auto              skip prompt for alternatives correctly configured
+                           in automatic mode (relevant for --config only)
+  --quiet                  quiet operation, minimal output.
+  --verbose                verbose operation, more output.
+  --debug                  debug output, way more output.
+  --help                   show this help message.
+  --version                show the version.
+```
+
+常用的有:
+- `display` 选项用来显示一个命令链接的所有可选命令，即查看一个命令链接组的所有信息，包括链接的模式(自动还是手动)、链接 `priority` 值、所有可用的链接命令等等。
 - `install` 选项的功能就是增加一组新的系统命令链接符。
 - `config` 选项用来显示和修改实际指向的候选命令，为在现有的命令链接选择一个作为系统默认。
 - `remove`
 
 
 
-工作原理：
-在 /etc/alternatives 存放软链接 link_name，指向实际的可执行文件 command-version-x. 在 /usr/bin 目录下存放软链接 command_name 指向 /etc/alternatives/link_name.
-
 ## 查看
+
+**工作原理**：在 `/etc/alternatives` 存放软链接 `link_name`，指向实际的可执行文件 `command-version-x`. 在 `/usr/bin` 目录下存放软链接 `command_name` 指向 `/etc/alternatives/link_name`.
 
 ```bash
 # 这里只考虑Ubuntu系统，查看所有已经被 alternatives 接管的链接
@@ -77,7 +129,6 @@ lrwxrwxrwx 1 root root   18 Feb  6  2025 view -> /usr/bin/vim.basic*
 lrwxrwxrwx 1 root root   18 Feb  6  2025 vim -> /usr/bin/vim.basic*
 lrwxrwxrwx 1 root root   18 Feb  6  2025 vimdiff -> /usr/bin/vim.basic*
 lrwxrwxrwx 1 root root   26 Oct  3  2023 which -> /usr/bin/which.debianutils*
-
 
 
 # 或者通过提供的 update-alternatives 命令查看
@@ -131,19 +182,35 @@ cuda - auto mode
 
 ```
 
-## 设置备选项的默认版本
+## 设置备选项的默认版本(添加并配置)
 
 ```bash
 # 添加基本用法为：
 update-alternatives --install <link> <name> <path> <priority> [--force]
-# 如：
-update-alternatives --install /usr/bin/cmake cmake /usr/local/bin/cmake 1 --force
-# /usr/bin/cmake 为链接的名字
-# cmake 指定在 alternatives 文件夹下的名字
-# path 为实际文件路径
-# priority 给当前的实际文件指定一个值，值越大，权限越高
+
+# 如：cmake 添加（cuda toolkit在安装时候就添加了。）
+update-alternatives --install /usr/local/cuda cuda /usr/local/cuda-11.8/ 1 --force
+# /usr/local/cuda 为链接的名字
+# cuda 指定在 alternatives 中的名字
+# /usr/local/cuda-11.8/ 为实际文件路径
+# 1, priority 给当前的实际文件指定一个值，值越大，权限越高
+
+# 查看是否配置成功
+update-alternatives --display cuda
+
 
 # 配置：
 update-alternatives --config cuda
+There are 2 choices for the alternative cuda (providing /usr/local/cuda).
+
+  Selection    Path                   Priority   Status
+------------------------------------------------------------
+* 0            /usr/local/cuda-12.9    129       auto mode
+  1            /usr/local/cuda-11.8/   1         manual mode
+  2            /usr/local/cuda-12.9    129       manual mode
+
+Press <enter> to keep the current choice[*], or type selection number: 1 # 手动输入修改
+update-alternatives: using /usr/local/cuda-11.8/ to provide /usr/local/cuda (cuda) in manual mode
+
 ```
 
