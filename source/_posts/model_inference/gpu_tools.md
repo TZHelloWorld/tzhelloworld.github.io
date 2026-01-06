@@ -1016,18 +1016,229 @@ ncu --set full --kernel-name "regex:kernel_name" ./program_exec
 
 
 
-# pytorch.profiler
+# `pytorch.profiler`
 
- > 注意，这个只是单机单卡上捕获的，对于多卡之间交互性能分析不是很友好。但是对于单卡 `CPU` 和 `GPU` 之间性能瓶颈分析会比较方便（单独分析 `CPU` 的 `overhead` 也很不错）。
- 
+> 注意，这个只是单机单卡上捕获的，对于多卡之间交互性能分析不是很友好。但是对于单卡 `CPU` 和 `GPU` 之间性能瓶颈分析会比较方便（单独分析 `CPU` 的 `overhead` 也很不错, `torch.compile` 其实就包含 `CPU overhead` 的优化）。
+> 
+> 在一些旧版本 `torch` 库中，存在 `torch.autograd.profiler` 旧版实现，存在一些问题：[https://github.com/pytorch/pytorch/pull/105187](https://github.com/pytorch/pytorch/pull/105187)
+> 
+> 或者可以参考下 [automated-trace-collection](https://pytorch.org/blog/automated-trace-collection/) 相关内容
+
+官方介绍：[pytorch.profiler](https://docs.pytorch.org/tutorials/recipes/recipes/profiler_recipe.html),该功能的前生可追溯到[GitHub - pytorch/kineto: A CPU+GPU Profiling library that provides access to timeline traces and har](https://github.com/pytorch/kineto.git)。
+
+## 使用
+
+```bash
+import torch
+from torch.profiler import profile, ProfilerActivity
+
+profiler = profile(
+    activities=[
+        ProfilerActivity.CPU,
+        ProfilerActivity.CUDA,
+    ],
+    with_stack=True,
+)
+
+profiler.start()
+# 程序执行。。。
+profiler.stop()
+
+# 以表格的形式打印出来
+print(prof.key_averages().table(row_limit=10))
+
+# 保存抓取的文件到目录中, 生成了一个Chrome追踪文件（是json格式文件压缩保存）
+profiler.export_chrome_trace("*****.trace.json.gz")
+```
+
+或，通过关键字 `with` 使用：
+
+```bash
+import torch
+from torch.profiler import profile, ProfilerActivity
+
+with profile(
+    activities=[
+        ProfilerActivity.CPU,
+        ProfilerActivity.CUDA,
+    ],
+    with_stack=True,
+) as profiler:
+    # 程序执行。。。
+
+# 以表格的形式打印出来
+print(prof.key_averages().table(row_limit=10))
+
+# 保存抓取的文件到目录中, 生成了一个Chrome追踪文件（是json格式文件压缩保存）
+profiler.export_chrome_trace("*****.trace.json.gz")
+```
+
+### 获取 `json` 内容查看
+
+`profiler.export_chrome_trace` 保存的内容是一个 `json` 格式文件，其中一级深度内容包括：
+
+```json
+{
+  "schemaVersion": 1,
+  "deviceProperties": [...],
+  "cupti_version": 22,
+  "cuda_runtime_version": 12040,
+  "cuda_driver_version": 12040,
+  "with_stack": 1,
+  "trace_id": "46FBD89488F048A5B416EC161BACAF76",
+  "traceEvents": [...],
+  "traceName": "/tmp/tmpn7mnigb1.json",
+  "displayTimeUnit": "ms",
+  "baseTimeNanoseconds": 1743521598000000000
+}
+```
+
+其中说明：
+
+- **schemaVersion**：JSON数据的格式版本号。
+- **deviceProperties**：记录GPU设备的详细属性信息，每个条目对应一个GPU设备。
+- **cupti_version**, cuda_runtime_version, cuda_driver_version：记录CUDA相关工具和驱动的版本信息。
+  - **cupti_version**: 22（表示：CUPTI 22.x版本）
+  - **cuda_runtime_version**: 12040（表示：CUDA 12.4.0，编码方式为MMmmii）
+  - **cuda_driver_version**: 12040（表示：CUDA驱动版本12.4.0）
+- **with_stack**：是否启用堆栈跟踪（stack tracing），1表示启用。
+- **trace_id**：追踪文件的唯一标识符。
+- **traceEvents**：记录具体的调用事件（如核函数执行、内存操作、函数调用等）。
+- **traceName**：追踪文件的保存路径和名称。
+- **displayTimeUnit**：时间显示的单位（如毫秒、微秒等）。
+- **baseTimeNanoseconds**：基准时间戳（所有事件的时间相对该基准值计算）。
 
 
+对于上述二级 `deviceProperties` 内容中每条数据（RTX 4090为例）：
 
+```json
+{
+  "id": 0,
+  "name": "NVIDIA GeForce RTX 4090",
+  "totalGlobalMem": 23785373696,
+  "computeMajor": 8,
+  "computeMinor": 9,
+  "maxThreadsPerBlock": 1024,
+  "maxThreadsPerMultiprocessor": 1536,
+  "regsPerBlock": 65536,
+  "warpSize": 32,
+  "sharedMemPerBlock": 49152,
+  "numSms": 128,
+  "regsPerMultiprocessor": 65536,
+  "sharedMemPerBlockOptin": 101376,
+  "sharedMemPerMultiprocessor": 102400
+}
+```
+
+说明:
+
+- **id** ：GPU设备的唯一标识符（从0开始编号）。
+- **name** ：GPU型号名称（如RTX 4090）。
+- **totalGlobalMem** ：GPU全局内存（显存）容量，单位是字节（23785373696 字节 ≈ 22.7 GB）。
+- **computeMajor** 和 **computeMinor** ：CUDA计算能力版本号（如 8.9，对应Ada Lovelace架构）。
+- **maxThreadsPerBlock** ：单个线程块（block）中允许的最大线程数。
+- **maxThreadsPerMultiprocessor** ：每个流式多处理器（SM）可同时运行的最大线程数。
+- **regsPerBlock** ：单个线程块可使用的寄存器总数。
+- **warpSize** ：GPU的线程 warp 大小（NVIDIA的warp默认是32线程）。
+- **sharedMemPerBlock** ：单个线程块可使用的共享内存容量（字节）。
+- **numSms** ：GPU的流式多处理器（SM）数量。
+- **regsPerMultiprocessor** ：每个SM可分配的寄存器总数。
+- **sharedMemPerBlockOptin** 和 **sharedMemPerMultiprocessor** ：共享内存的扩展配置参数。
+
+对于二级 `traceEvents` 内容中每条数据:
+
+```json
+{
+  "ph": "X",
+  "cat": "cuda_runtime",
+  "name": "cudaLaunchKernel",
+  "pid": 28722,
+  "tid": 28722,
+  "ts": 3699273910321.203,
+  "dur": 10321.843,
+  "args": {
+    "External id": 21,
+    "cbid": 211,
+    "correlation": 118
+  }
+}
+```
+
+常见参数说明（可能会或多或少有其他参数）：
+
+- **ph** ：事件类型(X、f、s、M、i)
+  - **X** 表示“执行完成”事件，即开始和结束时间记录在同一事件中
+  - **M** 表示元数据事件（Metadata）。
+- **cat** ：事件类别（cuda_runtime 表示CUDA运行时API调用）。
+- **name** ：具体事件名称（如 cudaLaunchKernel 表示核函数启动）。
+- **pid** 和 **tid** ：进程ID和线程ID（用于多进程/多线程环境的分析）。
+- **ts** ：事件开始时间戳（单位：纳秒，需结合 displayTimeUnit 和 baseTimeNanoseconds 转换为相对时间）。
+- **dur** ：事件持续时间（单位：纳秒）。
+- **args** ：事件的附加参数（可能包含开发者自定义的元数据）。
 
 
 ## 分析视图
 
-通过 `Perfetto` 打开或者
+
+然后将对应的 `*.json.gz` 在 [Perfetto](https://ui.perfetto.dev/) 视图打开（也可以用其他可视化工具,如`chrome://tracing`）:
+
+
+![pytorch.profiler_perfetto_CPU](../../img/assets/tools/prefetto.png)
+
+查看过程中，会发现很多类似命名的方法：
+
+- `<built-in function isinstance>`
+- `<built-in method get of dict object at 0x7f1680b25e00>`
+- `<built-in method items of dict object at 0x7f14517fc0c0>`
+- `<built-in function len>`
+- `<built-in method reshape of Tensor object at 0x7f141bac5800>`
+- `<built-in method cpu of Tensor object at 0x7f141a6b5080>`
+- `<built-in method get of dict object at 0x7f1680b25e00>`
+- `<built-in function scaled_dot_product_attention>`
+- `<built-in method permute of Tensor object at 0x7f141a6b5bc0>`
+- `<built-in method contiguous of Tensor object at 0x7f14508f1a80>`
+- `<built-in function linear>`
+- `<built-in method to of Tensor object at 0x7f141bac7fb0>`
+- `<built-in method mean of Tensor object at 0x7f14506f57b0>`
+- `<built-in function silu>`
+- `<built-in method chunk of Tensor object at 0x7f14507116c0>`
+
+这些函数/方法名称前缀为 `<built-in function>` 或 `<built-in method>` 的根本原因在于 **它们属于 Python 解释器或 PyTorch 框架预先定义的核心操作** ，与用户自定义 `python` 代码不同。
+
+- **Python 内置函数（Built-in Functions）**：在 `Python` 解释器直接提供如 `isinstance()`, `len()`, `list()`, `dict()`, `getattr()`, `setattr()`, `iter()`, `next()`, ...方法，这些是由C语言实现的，直接嵌入在解释器中
+- **PyTorch 的“内置”操作（Built-in in PyTorch）**：`PyTorch` 的 `Python API` 本质上是对底层 `C++/CUDA` 的封装，而 `Profiler` 会将这些底层绑定的方法视为“内置”。所以这些也显示为 `<build-in xxx>`
+
+
+## 案例说明：
+
+一个最常见的赋值命令 `a[1] = 0`,咋一看没什么，但是涉及 `GPU` 和 `CPU` 交互的时候，就会发现其会隐式调用 `cudaStreamSynchronize` 同步操作。(结果上没影响，但是在性能上会略低)：
+
+```bash
+import torch
+from torch.profiler import profile, ProfilerActivity
+
+device = "cuda:0"
+
+# 测试函数
+def main_test():
+    a = torch.tensor([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], device=device, dtype=torch.int32)
+    a[1] = 0 # todo 属于标量赋值, 隐式地涉及跨设备数据复制 (0是标量, 在 CPU 上) 
+    # 实现上会调用 aten::index_put_ --> aten::_index_put_impl_ --> aten::to --> aten::_to_copy --> aten::copy_ --> cudaStreamSynchronize
+
+if __name__ == '__main__':
+    with profile(
+        activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
+        with_stack=True
+    ) as prof:
+        main_test()
+
+    prof.export_chrome_trace(f"main_test_synchronize_trace.json")
+```
+
+很多时候，在功能实现上会忽略掉这种 **隐式同步** 的操作。并且这也很难通过单纯的代码进行定位排查。此时，就可以借助 `torch.profiler` 捕获，并可视化的方式去查看是否存在这种 `CPU` 和 `GPU` 交互引入的性能消耗：
+
+![alt text](../../img/assets/tools/cudaStreamSynchronize_trace.png)
+
 
 
 # Compute Sanitizer/ cuda-memcheck
